@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: lumora-api
+    runtime: node
+    region: singapore
+    plan: free
+    buildCommand: npm install && npm run build:packages && npx prisma generate --schema=./database/prisma/schema.prisma && npm run build --workspace=@lumora/api
+    startCommand: node apps/api/dist/main.js
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_PREFIX
+        value: /api/v1
+      - key: CORS_ORIGINS
+        value: "*"
