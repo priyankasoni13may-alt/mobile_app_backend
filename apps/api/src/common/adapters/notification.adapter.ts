@@ -1,5 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { NotificationChannel, NotificationType } from '@lumora/shared-types';
+import { MailService } from '../services/mail.service';
 
 export interface NotificationPayload {
   type: NotificationType;
@@ -46,13 +47,11 @@ export class FcmPushAdapter implements NotificationAdapter {
   }
 }
 
-import { MailService } from '../services/mail.service';
-
 @Injectable()
 export class SmtpEmailAdapter implements NotificationAdapter {
   private readonly logger = new Logger('SmtpEmailAdapter');
 
-  constructor(private readonly mailService?: MailService) {}
+  constructor(@Optional() private readonly mailService?: MailService) {}
 
   async send(userId: string, payload: NotificationPayload): Promise<DeliveryResult> {
     if (!process.env.SMTP_HOST || process.env.EMAIL_ADAPTER === 'console') {

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from './database/prisma.service';
 import { RedisService } from './common/services/redis.service';
+import { MailService } from './common/services/mail.service';
 
 import { AuthModule } from './modules/auth/auth.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
@@ -45,7 +46,7 @@ import { StorageModule } from './modules/storage/storage.module';
     HealthModule,
     StorageModule
   ],
-  providers: [PrismaService, RedisService],
-  exports: [PrismaService, RedisService]
+  providers: [PrismaService, RedisService, MailService],
+  exports: [PrismaService, RedisService, MailService]
 })
 export class AppModule {}

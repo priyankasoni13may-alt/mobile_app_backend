@@ -7,6 +7,7 @@ import {
   FcmPushAdapter,
   SmtpEmailAdapter
 } from '../../common/adapters/notification.adapter';
+import { MailService } from '../../common/services/mail.service';
 
 @Module({
   controllers: [NotificationsController],
@@ -15,7 +16,8 @@ import {
     PrismaService,
     ConsoleNotificationAdapter,
     FcmPushAdapter,
-    SmtpEmailAdapter
+    SmtpEmailAdapter,
+    MailService
   ],
   exports: [NotificationsService]
 })
