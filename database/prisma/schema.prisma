@@ -1,0 +1,820 @@
+// ==============================================================================
+// Lumora + Cypher Swift Partner Network — Prisma Schema
+// All 36 Models, UUID keys, BigInt paise, UTC timestamps, Append-Only constraints
+// ==============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------------------------------------------------------
+// 1. Core User & Identity
+// ------------------------------------------------------------------------------
+
+model User {
+  id              String    @id @default(uuid())
+  fullName        String
+  email           String    @unique
+  phone           String    @unique
+  passwordHash    String
+  status          String    @default("PENDING_VERIFICATION") // PENDING_VERIFICATION, ONBOARDING, ACTIVE, SUSPENDED, DEACTIVATED
+  emailVerifiedAt DateTime?
+  phoneVerifiedAt DateTime?
+  lastLoginAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  userRoles            UserRole[]
+  partnerProfile       PartnerProfile?
+  verificationRecords  VerificationRecord[]
+  agreementAcceptances AgreementAcceptance[]
+  learningCompletions  LearningCompletion[]
+  memberships          Membership[]
+  leadsAsPartner       Lead[]                 @relation("PartnerLeads")
+  leadsAsOwner         Lead[]                 @relation("OwnerLeads")
+  leadActivities       LeadActivity[]         @relation("ActorActivities")
+  tasks                Task[]
+  meetings             Meeting[]              @relation("OrganizerMeetings")
+  meetingOutcomes      MeetingOutcome[]       @relation("RecordedOutcomes")
+  paymentEvidences     PaymentEvidence[]      @relation("VerifiedPayments")
+  deliveryHandoffs     DeliveryHandoff[]      @relation("CreatedHandoffs")
+  commissions          CommissionLedger[]     @relation("PartnerCommissions")
+  approvedCommissions  CommissionLedger[]     @relation("ApprovedCommissions")
+  adjustments          CommissionAdjustment[] @relation("CreatedAdjustments")
+  bonusEvaluations     BonusEvaluation[]      @relation("PartnerBonuses")
+  payoutBatchesCreated PayoutBatch[]          @relation("CreatedBatches")
+  payoutBatchesApproved PayoutBatch[]         @relation("ApprovedBatches")
+  notifications        Notification[]
+  notificationPref     NotificationPreference?
+  supportTickets       SupportTicket[]        @relation("UserTickets")
+  assignedTickets      SupportTicket[]        @relation("AssignedTickets")
+  auditEvents          AuditEvent[]           @relation("ActorAuditEvents")
+
+  @@index([email])
+  @@index([phone])
+  @@index([status])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique // PARTNER, SALES, OPERATIONS, FINANCE, SUPER_ADMIN
+  description String
+  isSystem    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  userRoles UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  id         String   @id @default(uuid())
+  userId     String
+  roleId     String
+  assignedBy String?
+  assignedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model PartnerProfile {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  title            String
+  yearsExperience  Int      @default(0)
+  industries       String[]
+  languages        String[]
+  timezone         String   @default("Asia/Kolkata")
+  profileUrl       String?
+  photoUrl         String?
+  onboardingStatus String   @default("REGISTRATION_COMPLETED")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("partner_profiles")
+}
+
+model VerificationRecord {
+  id                String    @id @default(uuid())
+  userId            String
+  provider          String    @default("INTERNAL_DOC")
+  status            String    @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, VERIFIED, NEEDS_REVIEW, FAILED
+  providerReference String?
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  notes             String?
+  retentionUntil    DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@map("verification_records")
+}
+
+// ------------------------------------------------------------------------------
+// 2. Agreements & Training
+// ------------------------------------------------------------------------------
+
+model Agreement {
+  id            String   @id @default(uuid())
+  title         String
+  version       String   @unique
+  effectiveDate DateTime
+  content       String   @db.Text
+  isActive      Boolean  @default(true)
+  createdBy     String
+  createdAt     DateTime @default(now())
+
+  acceptances AgreementAcceptance[]
+
+  @@map("agreements")
+}
+
+model AgreementAcceptance {
+  id          String   @id @default(uuid())
+  userId      String
+  agreementId String
+  acceptedAt  DateTime @default(now())
+  ipAddress   String?
+  userAgent   String?
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agreement Agreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, agreementId])
+  @@map("agreement_acceptances")
+}
+
+model LearningModule {
+  id             String   @id @default(uuid())
+  businessUnitId String?
+  title          String
+  description    String   @db.Text
+  contentType    String   @default("ARTICLE") // VIDEO, ARTICLE, QUIZ, POLICY
+  content        String   @db.Text
+  sortOrder      Int      @default(0)
+  isMandatory    Boolean  @default(true)
+  isActive       Boolean  @default(true)
+  contentVersion Int      @default(1)
+  createdBy      String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  businessUnit BusinessUnit?        @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
+  completions  LearningCompletion[]
+
+  @@map("learning_modules")
+}
+
+model LearningCompletion {
+  id                  String   @id @default(uuid())
+  userId              String
+  moduleId            String
+  completedAt         DateTime @default(now())
+  score               Int?
+  acknowledgedVersion Int      @default(1)
+
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module LearningModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+  @@map("learning_completions")
+}
+
+// ------------------------------------------------------------------------------
+// 3. Organization & Multi-Tenancy
+// ------------------------------------------------------------------------------
+
+model Company {
+  id        String   @id @default(uuid())
+  name      String
+  legalName String
+  website   String?
+  sector    String?
+  country   String   @default("India")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  businessUnits BusinessUnit[]
+  memberships   Membership[]
+  leads         Lead[]
+
+  @@map("companies")
+}
+
+model BusinessUnit {
+  id                String   @id @default(uuid())
+  companyId         String
+  name              String
+  brandPrimaryColor String   @default("#0B192C")
+  brandAccentColor  String   @default("#FF6500")
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  memberships     Membership[]
+  services        Service[]
+  learningModules LearningModule[]
+  leads           Lead[]
+
+  @@map("business_units")
+}
+
+model Membership {
+  id             String   @id @default(uuid())
+  userId         String
+  companyId      String
+  businessUnitId String?
+  role           String
+  permissions    Json     @default("[]")
+  status         String   @default("ACTIVE")
+  assignedBy     String?
+  createdAt      DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  businessUnit BusinessUnit? @relation(fields: [businessUnitId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, companyId, businessUnitId])
+  @@map("memberships")
+}
+
+// ------------------------------------------------------------------------------
+// 4. Service Catalogue
+// ------------------------------------------------------------------------------
+
+model Service {
+  id                     String    @id @default(uuid())
+  businessUnitId         String
+  name                   String
+  description            String    @db.Text
+  icp                    String    @db.Text
+  deliverablesSummary    String    @db.Text
+  inclusions             String[]
+  exclusions             String[]
+  pitchGuide             String    @db.Text
+  objectionHandling      Json      @default("{}")
+  faqJson                Json      @default("[]")
+  approvedCaseStudies    Json      @default("[]")
+  qualificationQuestions String[]
+  priceMinorUnits        BigInt    @default(0) // Paise
+  currency               String    @default("INR")
+  contentVersion         Int       @default(1)
+  isActive               Boolean   @default(true)
+  publishedAt            DateTime?
+  publishedBy            String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  businessUnit BusinessUnit     @relation(fields: [businessUnitId], references: [id], onDelete: Cascade)
+  versions     ServiceVersion[]
+  deals        Deal[]
+
+  @@map("services")
+}
+
+model ServiceVersion {
+  id           String   @id @default(uuid())
+  serviceId    String
+  versionLabel String
+  snapshotJson Json
+  changedBy    String
+  changedAt    DateTime @default(now())
+  reason       String
+
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@map("service_versions")
+}
+
+// ------------------------------------------------------------------------------
+// 5. Leads & Ownership
+// ------------------------------------------------------------------------------
+
+model Lead {
+  id                   String    @id @default(uuid())
+  companyId            String
+  businessUnitId       String
+  partnerId            String
+  ownerId              String
+  companyName          String
+  companyWebsite       String?
+  contactName          String
+  contactRole          String?
+  contactEmail         String?
+  contactPhone         String?
+  geography            String    @default("India")
+  industry             String
+  serviceInterest      String
+  source               String    @default("DIRECT_OUTREACH")
+  needSummary          String    @db.Text
+  consentBasis         String
+  stage                String    @default("NEW")
+  unqualifiedReason    String?
+  closedLostReason     String?
+  closedLostFollowUpAt DateTime?
+  nextActionAt         DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  company               Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  businessUnit          BusinessUnit           @relation(fields: [businessUnitId], references: [id], onDelete: Cascade)
+  partner               User                   @relation("PartnerLeads", fields: [partnerId], references: [id], onDelete: Cascade)
+  owner                 User                   @relation("OwnerLeads", fields: [ownerId], references: [id], onDelete: Cascade)
+  activities            LeadActivity[]
+  meetings              Meeting[]
+  deals                 Deal[]
+  tasks                 Task[]
+  claimConflicts        LeadClaimConflict[]    @relation("CandidateLeadConflicts")
+  targetConflicts       LeadClaimConflict[]    @relation("ExistingLeadConflicts")
+  duplicateMatchRecords DuplicateMatchRecord[]
+
+  @@index([companyWebsite])
+  @@index([contactEmail])
+  @@index([contactPhone])
+  @@index([stage])
+  @@index([partnerId])
+  @@index([ownerId])
+  @@index([createdAt])
+  @@map("leads")
+}
+
+model LeadActivity {
+  id           String    @id @default(uuid())
+  leadId       String
+  actorId      String
+  activityType String
+  notes        String?   @db.Text
+  outcome      String?
+  channel      String?
+  happenedAt   DateTime  @default(now())
+  nextActionAt DateTime?
+
+  lead  Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  actor User @relation("ActorActivities", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@map("lead_activities")
+}
+
+model LeadClaimConflict {
+  id              String    @id @default(uuid())
+  candidateLeadId String?
+  existingLeadId  String
+  requesterId     String
+  decision        String    @default("PENDING") // PENDING, ORIGINAL_OWNER, NEW_CLAIMANT, SPLIT, REJECTED
+  reviewerId      String?
+  reason          String    @db.Text
+  splitPercentage Int?
+  createdAt       DateTime  @default(now())
+  resolvedAt      DateTime?
+
+  candidateLead Lead? @relation("CandidateLeadConflicts", fields: [candidateLeadId], references: [id], onDelete: SetNull)
+  existingLead  Lead  @relation("ExistingLeadConflicts", fields: [existingLeadId], references: [id], onDelete: Cascade)
+
+  @@map("lead_claim_conflicts")
+}
+
+model DuplicateMatchRecord {
+  id           String   @id @default(uuid())
+  leadId       String
+  matchType    String // DOMAIN, EMAIL, PHONE, COMPANY_NAME
+  matchValue   String
+  matchedLeadId String
+  confidence   Float    @default(1.0)
+  checkedAt    DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@map("duplicate_match_records")
+}
+
+// ------------------------------------------------------------------------------
+// 6. Tasks & Follow-ups
+// ------------------------------------------------------------------------------
+
+model Task {
+  id           String    @id @default(uuid())
+  leadId       String?
+  userId       String
+  title        String
+  description  String?   @db.Text
+  taskType     String    @default("FOLLOW_UP")
+  priority     String    @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  dueAt        DateTime
+  snoozedUntil DateTime?
+  completedAt  DateTime?
+  completedBy  String?
+  status       String    @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  lead Lead? @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([dueAt])
+  @@index([status])
+  @@map("tasks")
+}
+
+// ------------------------------------------------------------------------------
+// 7. Meetings
+// ------------------------------------------------------------------------------
+
+model Meeting {
+  id                    String    @id @default(uuid())
+  leadId                String
+  organizerId           String
+  title                 String
+  purpose               String
+  scheduledAtUtc        DateTime
+  timezone              String    @default("Asia/Kolkata")
+  durationMinutes       Int       @default(30)
+  mode                  String    @default("ONLINE") // ONLINE, IN_PERSON
+  meetingLinkOrLocation String
+  inviteeEmails         Json      @default("[]")
+  inviteeStatus         String?
+  meetingStatus         String    @default("SCHEDULED") // SCHEDULED, COMPLETED, RESCHEDULED, CANCELLED, NO_SHOW
+  cancellationReason    String?
+  rescheduleCount       Int       @default(0)
+  reminderSentAt        DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  lead      Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  organizer User            @relation("OrganizerMeetings", fields: [organizerId], references: [id], onDelete: Cascade)
+  outcome   MeetingOutcome?
+
+  @@index([leadId])
+  @@index([organizerId])
+  @@index([scheduledAtUtc])
+  @@index([meetingStatus])
+  @@map("meetings")
+}
+
+model MeetingOutcome {
+  id                  String    @id @default(uuid())
+  meetingId           String    @unique
+  attendanceConfirmed Boolean   @default(true)
+  isQualified         Boolean   @default(false)
+  requirementSummary  String    @db.Text
+  budgetRange         String?
+  timeline            String?
+  decisionProcess     String?
+  objections          String?   @db.Text
+  agreedNextAction    String
+  nextActionAt        DateTime?
+  recordedById        String
+  recordedAt          DateTime  @default(now())
+
+  meeting    Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  recordedBy User    @relation("RecordedOutcomes", fields: [recordedById], references: [id], onDelete: Cascade)
+
+  @@map("meeting_outcomes")
+}
+
+// ------------------------------------------------------------------------------
+// 8. Deals & Payments
+// ------------------------------------------------------------------------------
+
+model Deal {
+  id                   String    @id @default(uuid())
+  leadId               String
+  dealType             String // DIAGNOSTIC, SERVICE
+  serviceId            String?
+  amountMinorUnits     BigInt    @default(0) // Paise
+  currency             String    @default("INR")
+  contractStatus       String    @default("DRAFT") // DRAFT, SENT, SIGNED, REJECTED, EXPIRED
+  paymentStatus        String    @default("PENDING") // PENDING, EVIDENCE_SUBMITTED, VERIFIED, REJECTED, REFUNDED
+  billingFrequency     String?
+  expectedStartDate    DateTime?
+  signedAt             DateTime?
+  firstPaymentAt       DateTime?
+  closedAt             DateTime?
+  closedLostReason     String?
+  closedLostFollowUpAt DateTime?
+  closedBy             String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  lead             Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  service          Service?           @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  paymentEvidences PaymentEvidence[]
+  deliveryHandoff  DeliveryHandoff?
+  commissionLedger CommissionLedger[]
+
+  @@index([leadId])
+  @@index([dealType])
+  @@index([paymentStatus])
+  @@map("deals")
+}
+
+model PaymentEvidence {
+  id               String    @id @default(uuid())
+  dealId           String
+  amountMinorUnits BigInt // Paise
+  currency         String    @default("INR")
+  status           String    @default("SUBMITTED") // SUBMITTED, VERIFIED, REJECTED
+  receivedAt       DateTime
+  paymentReference String
+  evidenceUrl      String?
+  rejectionReason  String?
+  verifiedById     String?
+  verifiedAt       DateTime?
+  createdAt        DateTime  @default(now())
+
+  deal       Deal  @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  verifiedBy User? @relation("VerifiedPayments", fields: [verifiedById], references: [id], onDelete: SetNull)
+
+  @@index([dealId])
+  @@index([status])
+  @@map("payment_evidences")
+}
+
+model DeliveryHandoff {
+  id            String    @id @default(uuid())
+  dealId        String    @unique
+  approvedScope String    @db.Text
+  contacts      Json      @default("[]")
+  commitments   String    @db.Text
+  nextMeetingAt DateTime?
+  documentUrls  Json      @default("[]")
+  handoffNotes  String?   @db.Text
+  createdById   String
+  createdAt     DateTime  @default(now())
+
+  deal      Deal @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  createdBy User @relation("CreatedHandoffs", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@map("delivery_handoffs")
+}
+
+// ------------------------------------------------------------------------------
+// 9. Financial Ledger & Incentives (APPEND-ONLY)
+// ------------------------------------------------------------------------------
+
+model CommissionPolicy {
+  id                     String    @id @default(uuid())
+  policyVersion          String    @unique
+  triggerType            String // DIAGNOSTIC_CLOSURE, SERVICE_MILESTONE, ANNUAL_BONUS
+  fixedAmountMinorUnits  BigInt? // In paise
+  percentageBasisPoints  Int? // e.g. 1000 = 10.00%
+  roundingRule           String    @default("ROUND") // FLOOR, CEIL, ROUND
+  eligibilityRulesJson   Json      @default("{}")
+  effectiveFrom          DateTime
+  effectiveTo            DateTime?
+  isActive               Boolean   @default(true)
+  description            String
+  createdBy              String
+  createdAt              DateTime  @default(now())
+
+  ledgerEntries CommissionLedger[]
+
+  @@index([policyVersion])
+  @@map("commission_policies")
+}
+
+model CommissionLedger {
+  id                       String    @id @default(uuid())
+  partnerId                String
+  dealId                   String
+  policyId                 String
+  triggerEvent             String // DIAGNOSTIC_CLOSURE, SERVICE_MILESTONE, ANNUAL_BONUS
+  calculationBasis         String
+  grossAmountMinorUnits    BigInt // Paise
+  currency                 String    @default("INR")
+  status                   String    @default("PENDING_REVIEW") // PENDING_REVIEW, APPROVED, REJECTED, HELD, BATCHED, PAID
+  rejectionReason          String?
+  holdReason               String?
+  approvedById             String?
+  approvedAt               DateTime?
+  paidAt                   DateTime?
+  paymentReference         String?
+  taxWithholdingMinorUnits BigInt?
+  netAmountMinorUnits      BigInt?
+  idempotencyKey           String    @unique
+  createdAt                DateTime  @default(now())
+
+  partner     User                   @relation("PartnerCommissions", fields: [partnerId], references: [id], onDelete: Cascade)
+  deal        Deal                   @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  policy      CommissionPolicy       @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  approvedBy  User?                  @relation("ApprovedCommissions", fields: [approvedById], references: [id], onDelete: SetNull)
+  adjustments CommissionAdjustment[]
+  payoutItem  PayoutItem?
+
+  @@unique([dealId, policyId, triggerEvent])
+  @@index([partnerId])
+  @@index([status])
+  @@index([idempotencyKey])
+  @@index([createdAt])
+  @@map("commission_ledger")
+}
+
+model CommissionAdjustment {
+  id                    String   @id @default(uuid())
+  originalLedgerEntryId String
+  adjustmentType        String // REVERSAL, CORRECTION, CLAWBACK, REFUND_ADJUSTMENT
+  amountMinorUnits      BigInt // Signed or absolute paise
+  reason                String
+  createdById           String
+  createdAt             DateTime @default(now())
+
+  originalEntry CommissionLedger @relation(fields: [originalLedgerEntryId], references: [id], onDelete: Cascade)
+  createdBy     User             @relation("CreatedAdjustments", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([originalLedgerEntryId])
+  @@map("commission_adjustments")
+}
+
+model BonusPeriod {
+  id                     String   @id @default(uuid())
+  periodYear             Int
+  targetEligibleClients  Int      @default(15)
+  bonusAmountMinorUnits  BigInt   @default(10000000) // ₹1,00,000 in paise
+  consistencyCriteria    Json     @default("{}")
+  complianceCriteria     Json     @default("{}")
+  isActive               Boolean  @default(true)
+  createdBy              String
+  createdAt              DateTime @default(now())
+
+  evaluations BonusEvaluation[]
+
+  @@unique([periodYear])
+  @@map("bonus_periods")
+}
+
+model BonusEvaluation {
+  id                    String    @id @default(uuid())
+  partnerId             String
+  bonusPeriodId         String
+  actualEligibleClients Int       @default(0)
+  isEligible            Boolean   @default(false)
+  status                String    @default("EVALUATING") // EVALUATING, APPROVED, PAID, DISQUALIFIED
+  disqualificationReason String?
+  evaluatedById         String?
+  evaluatedAt           DateTime?
+  paidAt                DateTime?
+  paymentReference      String?
+  createdAt             DateTime  @default(now())
+
+  partner     User        @relation("PartnerBonuses", fields: [partnerId], references: [id], onDelete: Cascade)
+  bonusPeriod BonusPeriod @relation(fields: [bonusPeriodId], references: [id], onDelete: Cascade)
+
+  @@unique([partnerId, bonusPeriodId])
+  @@map("bonus_evaluations")
+}
+
+model PayoutBatch {
+  id                    String    @id @default(uuid())
+  batchReference        String    @unique
+  totalAmountMinorUnits BigInt    @default(0) // Paise
+  currency              String    @default("INR")
+  itemCount             Int       @default(0)
+  status                String    @default("DRAFT") // DRAFT, APPROVED, PROCESSING, COMPLETED
+  approvedById          String?
+  approvedAt            DateTime?
+  processedAt           DateTime?
+  notes                 String?
+  createdById           String
+  createdAt             DateTime  @default(now())
+
+  createdBy  User         @relation("CreatedBatches", fields: [createdById], references: [id], onDelete: Cascade)
+  approvedBy User?        @relation("ApprovedBatches", fields: [approvedById], references: [id], onDelete: SetNull)
+  items      PayoutItem[]
+
+  @@map("payout_batches")
+}
+
+model PayoutItem {
+  id                      String    @id @default(uuid())
+  batchId                 String
+  commissionLedgerEntryId String    @unique
+  amountMinorUnits        BigInt // Paise
+  status                  String    @default("IN_BATCH")
+  paymentReference        String?
+  paidAt                  DateTime?
+
+  batch                 PayoutBatch      @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  commissionLedgerEntry CommissionLedger @relation(fields: [commissionLedgerEntryId], references: [id], onDelete: Cascade)
+
+  @@map("payout_items")
+}
+
+// ------------------------------------------------------------------------------
+// 10. Notifications & Support
+// ------------------------------------------------------------------------------
+
+model Notification {
+  id             String    @id @default(uuid())
+  userId         String
+  type           String // APPLICATION_STATUS, LEAD_ASSIGNED, MEETING_REMINDER, etc.
+  title          String
+  message        String
+  dataJson       Json?
+  channel        String    @default("IN_APP") // IN_APP, PUSH, EMAIL
+  sentAt         DateTime  @default(now())
+  readAt         DateTime?
+  deliveryStatus String    @default("DELIVERED")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([readAt])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  inAppEnabled     Boolean  @default(true)
+  pushEnabled      Boolean  @default(true)
+  emailEnabled     Boolean  @default(true)
+  meetingReminders Boolean  @default(true)
+  leadUpdates      Boolean  @default(true)
+  policyChanges    Boolean  @default(true)
+  payoutUpdates    Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
+}
+
+model SupportTicket {
+  id             String    @id @default(uuid())
+  userId         String
+  category       String // PAYOUT_DISPUTE, LEAD_CLAIM, TECHNICAL_ISSUE, etc.
+  status         String    @default("OPEN") // OPEN, IN_PROGRESS, WAITING_ON_USER, RESOLVED, CLOSED
+  subject        String
+  description    String    @db.Text
+  attachmentUrls Json      @default("[]")
+  assignedToId   String?
+  resolution     String?   @db.Text
+  resolvedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user       User  @relation("UserTickets", fields: [userId], references: [id], onDelete: Cascade)
+  assignedTo User? @relation("AssignedTickets", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@map("support_tickets")
+}
+
+// ------------------------------------------------------------------------------
+// 11. Audit & Idempotency (APPEND-ONLY)
+// ------------------------------------------------------------------------------
+
+model AuditEvent {
+  id              String   @id @default(uuid())
+  actorId         String
+  action          String
+  entityType      String
+  entityId        String
+  beforeStateJson Json?
+  afterStateJson  Json?
+  reason          String?
+  ipAddress       String?
+  requestId       String?
+  createdAt       DateTime @default(now())
+
+  actor User @relation("ActorAuditEvents", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_events")
+}
+
+model IdempotencyRecord {
+  id                 String   @id @default(uuid())
+  key                String   @unique
+  entityType         String
+  entityId           String?
+  responseStatusCode Int
+  createdAt          DateTime @default(now())
+  expiresAt          DateTime
+
+  @@index([key])
+  @@map("idempotency_records")
+}

@@ -1,0 +1,43 @@
+{
+  "name": "lumora-cypher-partner-network",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Lumora + Cypher Swift Business Development & Networking Partner App Monorepo",
+  "author": "Lumora & Cypher Swift Engineering",
+  "license": "UNLICENSED",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev:api",
+    "dev:api": "npm run --workspace=@lumora/api dev",
+    "dev:admin": "npm run --workspace=@lumora/admin dev",
+    "dev:mobile": "npm run --workspace=@lumora/mobile dev",
+    "build": "npm run --workspaces if-present build",
+    "build:packages": "npm run --workspace=@lumora/shared-types build && npm run --workspace=@lumora/validation build && npm run --workspace=@lumora/api-client build",
+    "db:generate": "npx prisma generate --schema=./database/prisma/schema.prisma",
+    "db:migrate": "npx prisma migrate dev --schema=./database/prisma/schema.prisma",
+    "db:seed": "node database/seed/seed.js",
+    "db:reset": "npx prisma migrate reset --schema=./database/prisma/schema.prisma --force",
+    "lint": "eslint . --ext .ts,.tsx,.js",
+    "typecheck": "npm run --workspaces if-present typecheck",
+    "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:e2e": "jest tests/e2e",
+    "docker:up": "docker compose -f infra/docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f infra/docker/docker-compose.yml down"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.9",
+    "dotenv": "^16.4.5",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.2",
+    "prisma": "^5.16.1",
+    "ts-jest": "^29.1.5",
+    "typescript": "^5.5.2"
+  }
+}
