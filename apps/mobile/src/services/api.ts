@@ -8,9 +8,9 @@ import Constants from 'expo-constants';
 const debuggerHost = Constants.expoConfig?.hostUri;
 const lanIp = debuggerHost ? debuggerHost.split(':')[0] : null;
 
-const API_BASE_URL = lanIp
-  ? `http://${lanIp}:4000/api/v1`
-  : (process.env.EXPO_PUBLIC_API_URL || 'http://localhost:4000/api/v1');
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL ||
+  (lanIp ? `http://${lanIp}:4000/api/v1` : 'http://localhost:4000/api/v1');
 
 export const apiClient = new LumoraApiClient({
   baseUrl: API_BASE_URL,

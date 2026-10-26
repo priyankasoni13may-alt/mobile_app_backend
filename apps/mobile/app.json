@@ -29,6 +29,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "f6ff5730-6ce9-4d2c-94f6-440f295e8286"
+      }
+    },
+    "owner": "sagararya"
   }
 }
