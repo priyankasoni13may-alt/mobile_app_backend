@@ -1,0 +1,26 @@
+# Monorepo services not needed for mobile build
+apps/admin
+apps/api
+database
+infra
+docs
+tests
+
+# Dependencies and caches
+**/node_modules
+node_modules
+**/.expo
+.expo
+apps/api/dist
+apps/admin/dist
+build
+web-build
+**/.next
+.next
+
+# Git & System
+.git
+.github
+*.log
+npm-debug.log*
+.env*

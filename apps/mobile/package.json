@@ -10,7 +10,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "export": "expo export",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "cd ../.. && npm run build:packages"
   },
   "dependencies": {
     "@lumora/api-client": "*",
