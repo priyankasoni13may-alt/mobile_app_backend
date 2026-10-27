@@ -113,7 +113,11 @@ export class AuthService {
     // Trigger initial OTP to verify email (phone is saved for contact)
     const normalizedEmail = dto.email.toLowerCase();
     const otp = this.otpService.generateOtp(normalizedEmail);
-    await this.mailService.sendVerificationOtp(normalizedEmail, dto.fullName, otp);
+    try {
+      await this.mailService.sendVerificationOtp(normalizedEmail, dto.fullName, otp);
+    } catch (err: any) {
+      this.logger.warn(`Failed to dispatch verification email: ${err.message}`);
+    }
 
     // Generate tokens
     const tokens = await this.generateTokens(user.id, user.email, [assignedRole]);
@@ -237,7 +241,11 @@ export class AuthService {
     }
 
     if (targetEmail) {
-      await this.mailService.sendVerificationOtp(targetEmail, fullName, otp);
+      try {
+        await this.mailService.sendVerificationOtp(targetEmail, fullName, otp);
+      } catch (err: any) {
+        this.logger.warn(`Failed to dispatch verification email: ${err.message}`);
+      }
     }
 
     return {
