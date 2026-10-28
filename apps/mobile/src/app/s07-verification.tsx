@@ -11,7 +11,6 @@ import { useRouter } from 'expo-router';
 import { ShieldCheck, CheckCircle2, Lock, ArrowRight, AlertCircle, FileText } from 'lucide-react-native';
 import { apiClient } from '../services/api';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function IdentityVerificationScreen() {
   const router = useRouter();
@@ -90,8 +89,6 @@ export default function IdentityVerificationScreen() {
           size="lg"
         />
       )}
-
-      <PoweredByFooter style={{ marginTop: 30, marginBottom: 10 }} />
     </ScrollView>
   );
 }

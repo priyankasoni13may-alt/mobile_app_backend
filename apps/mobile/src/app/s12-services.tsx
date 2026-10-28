@@ -15,7 +15,6 @@ import {
   TrendingUp,
   Cpu
 } from 'lucide-react-native';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function ServicesCatalogueScreen() {
   const router = useRouter();
@@ -125,8 +124,6 @@ export default function ServicesCatalogueScreen() {
             </View>
           </TouchableOpacity>
         ))}
-
-        <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
       </ScrollView>
     </View>
   );

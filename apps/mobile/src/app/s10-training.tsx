@@ -16,7 +16,6 @@ import {
   ArrowRight
 } from 'lucide-react-native';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function TrainingHubScreen() {
   const router = useRouter();
@@ -115,8 +114,6 @@ export default function TrainingHubScreen() {
         onPress={() => router.replace('/(tabs)')}
         icon={<ArrowRight size={18} color="#FFFFFF" />}
       />
-
-      <PoweredByFooter />
     </ScrollView>
   );
 }

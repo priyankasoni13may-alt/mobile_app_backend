@@ -18,7 +18,6 @@ import {
   Check
 } from 'lucide-react-native';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 interface Task {
   id: string;
@@ -191,8 +190,6 @@ export default function FollowUpsTasksScreen() {
             {completedTasks.map(renderTask)}
           </View>
         )}
-
-        <PoweredByFooter />
       </ScrollView>
 
       {/* Create Task Modal */}

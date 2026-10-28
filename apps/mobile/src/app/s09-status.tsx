@@ -18,7 +18,6 @@ import {
 } from 'lucide-react-native';
 import { useAuthStore } from '../store/authStore';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function ApplicationStatusScreen() {
   const router = useRouter();
@@ -93,8 +92,6 @@ export default function ApplicationStatusScreen() {
           />
         )}
       </View>
-
-      <PoweredByFooter style={{ marginTop: 30, marginBottom: 10 }} />
     </ScrollView>
   );
 }

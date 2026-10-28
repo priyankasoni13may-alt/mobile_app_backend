@@ -13,7 +13,6 @@ import {
   Zap,
   Target
 } from 'lucide-react-native';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 import { LumoraGradientText } from '../components/LumoraGradientText';
 
 export default function PerformanceDashboardScreen() {
@@ -156,8 +155,6 @@ export default function PerformanceDashboardScreen() {
           <Text style={styles.rankSubtitle}>Complete your first discovery meeting and diagnostic conversion to enter the network leaderboards.</Text>
         </View>
       </View>
-
-      <PoweredByFooter />
     </ScrollView>
   );
 }

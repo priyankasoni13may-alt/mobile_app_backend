@@ -13,7 +13,6 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Calendar, Clock, Video, MapPin, Mail, ArrowRight } from 'lucide-react-native';
 import { apiClient } from '../services/api';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function BookMeetingScreen() {
   const router = useRouter();
@@ -159,8 +158,6 @@ export default function BookMeetingScreen() {
           />
         </View>
       </View>
-
-      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }

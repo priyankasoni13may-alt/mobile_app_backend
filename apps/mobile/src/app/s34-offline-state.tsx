@@ -18,7 +18,6 @@ import {
 } from 'lucide-react-native';
 import { useDraftStore } from '../store/draftStore';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function OfflineStateScreen() {
   const router = useRouter();
@@ -143,8 +142,6 @@ export default function OfflineStateScreen() {
           <Text style={styles.supportBtnText}>Report Persistent Server Error</Text>
         </TouchableOpacity>
       </View>
-
-      <PoweredByFooter />
     </ScrollView>
   );
 }

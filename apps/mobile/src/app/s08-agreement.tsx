@@ -11,7 +11,6 @@ import { useRouter } from 'expo-router';
 import { FileCheck, Shield, CheckCircle2, ArrowRight } from 'lucide-react-native';
 import { apiClient } from '../services/api';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function AgreementScreen() {
   const router = useRouter();
@@ -77,7 +76,6 @@ export default function AgreementScreen() {
           icon={<CheckCircle2 size={18} color="#FFFFFF" />}
           size="lg"
         />
-        <PoweredByFooter style={{ marginTop: 16 }} />
       </View>
     </View>
   );

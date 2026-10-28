@@ -211,7 +211,7 @@ export default function LoginScreen() {
           </View>
         </View>
 
-        <PoweredByFooter style={{ marginTop: 24 }} />
+        <PoweredByFooter style={{ marginTop: 'auto', paddingTop: 28, paddingBottom: 8 }} />
       </View>
     </ScrollView>
   );
@@ -220,7 +220,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
   scrollContent: { flexGrow: 1 },
-  content: { padding: 24, paddingTop: 30, paddingBottom: 60 },
+  content: { flexGrow: 1, padding: 24, paddingTop: 30, paddingBottom: 24, justifyContent: 'space-between' },
   headerBox: { marginBottom: 24, alignItems: 'center', gap: 6 },
   brandTitle: { fontSize: 24, fontWeight: '900', color: '#0B0F26', letterSpacing: 0.5, textAlign: 'center', marginTop: 8 },
   gradientLineBox: { width: '100%', alignItems: 'center' },

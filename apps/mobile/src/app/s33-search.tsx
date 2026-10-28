@@ -17,7 +17,6 @@ import {
   Clock,
   Sparkles
 } from 'lucide-react-native';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 interface SearchResult {
   id: string;
@@ -187,8 +186,6 @@ export default function GlobalSearchScreen() {
             </TouchableOpacity>
           ))
         )}
-
-        <PoweredByFooter />
       </ScrollView>
     </View>
   );

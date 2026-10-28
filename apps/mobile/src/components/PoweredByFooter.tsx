@@ -8,31 +8,32 @@ interface PoweredByFooterProps {
 export const PoweredByFooter: React.FC<PoweredByFooterProps> = ({ style }) => {
   return (
     <View style={[styles.container, style]}>
-      <Text style={styles.text}>
-        powered by{' '}
-        <Text style={styles.brand}>cypher swift infotech pvt. ltd.</Text>
-      </Text>
+      <Text style={styles.kicker}>POWERED BY</Text>
+      <Text style={styles.brand}>Cypher Swift Infotech Pvt. Ltd.</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 14,
+    paddingVertical: 18,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
+    gap: 3
   },
-  text: {
-    fontSize: 11,
-    color: '#64748B',
-    fontWeight: '500',
-    letterSpacing: 0.3,
-    textAlign: 'center',
+  kicker: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#94A3B8',
+    letterSpacing: 1.6,
+    textTransform: 'uppercase',
   },
   brand: {
-    color: '#4F75FF',
-    fontWeight: '700',
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#475569',
+    letterSpacing: 0.4,
   },
 });
 

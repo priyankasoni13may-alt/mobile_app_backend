@@ -17,7 +17,6 @@ import {
   ArrowRight
 } from 'lucide-react-native';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function DiagnosticOfferScreen() {
   const router = useRouter();
@@ -85,8 +84,6 @@ export default function DiagnosticOfferScreen() {
           size="lg"
         />
       </View>
-
-      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }

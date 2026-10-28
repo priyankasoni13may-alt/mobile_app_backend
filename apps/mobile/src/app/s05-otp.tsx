@@ -10,7 +10,6 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ShieldCheck, RefreshCw } from 'lucide-react-native';
 import { apiClient } from '../services/api';
 import { useAuthStore } from '../store/authStore';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 import { LumoraButton } from '../components/LumoraButton';
 
 export default function OtpVerificationScreen() {
@@ -129,8 +128,6 @@ export default function OtpVerificationScreen() {
           style={{ width: '100%', marginTop: 8 }}
         />
       </View>
-
-      <PoweredByFooter style={{ marginTop: 24 }} />
     </View>
   );
 }

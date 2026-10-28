@@ -21,7 +21,6 @@ import {
   Search,
   Lock
 } from 'lucide-react-native';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 interface LedgerItem {
   id: string;
@@ -197,8 +196,6 @@ export default function EarningsLedgerScreen() {
             );
           })
         )}
-
-        <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
       </ScrollView>
 
       {/* Dispute Modal */}

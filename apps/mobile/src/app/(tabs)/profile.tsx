@@ -21,7 +21,6 @@ import {
   Lock
 } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
-import { PoweredByFooter } from '../../components/PoweredByFooter';
 
 export default function ProfileSettingsScreen() {
   const router = useRouter();
@@ -149,8 +148,6 @@ export default function ProfileSettingsScreen() {
         <LogOut size={16} color="#EF4444" />
         <Text style={styles.logoutText}>Sign Out of Partner Network</Text>
       </TouchableOpacity>
-
-      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }

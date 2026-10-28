@@ -19,7 +19,6 @@ import {
   ArrowRight
 } from 'lucide-react-native';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function ServiceDetailScreen() {
   const router = useRouter();
@@ -146,8 +145,6 @@ export default function ServiceDetailScreen() {
             </View>
           </View>
         )}
-
-        <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
       </ScrollView>
 
       {/* Bottom Action Footer */}

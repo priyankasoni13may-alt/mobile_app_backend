@@ -24,7 +24,6 @@ import {
 } from 'lucide-react-native';
 import { apiClient } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
-import { PoweredByFooter } from '../../components/PoweredByFooter';
 
 function formatLeadDate(dateVal?: string | Date | null): string {
   if (!dateVal) return 'Recently';
@@ -300,7 +299,14 @@ export default function LeadsTabScreen() {
                   <View style={styles.contactRow}>
                     <Text style={styles.contactLabel}>Contact:</Text>
                     <Text style={styles.contactValue}>
-                      {lead.contactName} {lead.contactRole ? `(${lead.contactRole})` : ''}
+                      {(() => {
+                        const name = (lead.contactName || '').trim();
+                        const role = (lead.contactRole || '').trim();
+                        if (!role || name.toLowerCase().includes(role.toLowerCase())) {
+                          return name;
+                        }
+                        return `${name} (${role})`;
+                      })()}
                     </Text>
                   </View>
                 ) : null}
@@ -356,8 +362,6 @@ export default function LeadsTabScreen() {
             );
           })
         )}
-
-        <PoweredByFooter style={{ marginTop: 20, marginBottom: 50 }} />
       </ScrollView>
     </View>
   );

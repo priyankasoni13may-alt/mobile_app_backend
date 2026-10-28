@@ -17,7 +17,6 @@ import {
   ShieldCheck,
   ChevronRight
 } from 'lucide-react-native';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 interface NotificationItem {
   id: string;
@@ -120,8 +119,6 @@ export default function NotificationsScreen() {
             </TouchableOpacity>
           ))
         )}
-
-        <PoweredByFooter />
       </ScrollView>
     </View>
   );

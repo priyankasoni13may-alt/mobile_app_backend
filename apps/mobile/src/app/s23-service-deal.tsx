@@ -21,7 +21,6 @@ import {
   DollarSign
 } from 'lucide-react-native';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function ServiceDealScreen() {
   const router = useRouter();
@@ -187,8 +186,6 @@ export default function ServiceDealScreen() {
           Commissions are generated inside an isolated database transaction upon Finance approval. Partners cannot self-approve payouts.
         </Text>
       </View>
-
-      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }

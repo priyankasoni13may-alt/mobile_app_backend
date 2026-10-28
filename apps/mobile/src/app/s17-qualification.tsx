@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ShieldCheck, Lock, ArrowLeft, Building2 } from 'lucide-react-native';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function QualificationFormScreen() {
   const router = useRouter();
@@ -48,8 +47,6 @@ export default function QualificationFormScreen() {
           <Text style={styles.returnBtnText}>Return to Leads Pipeline</Text>
         </TouchableOpacity>
       </View>
-
-      <PoweredByFooter style={{ marginTop: 30, marginBottom: 10 }} />
     </ScrollView>
   );
 }

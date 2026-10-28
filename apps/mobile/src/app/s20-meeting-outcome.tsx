@@ -13,7 +13,6 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { CheckCircle2, XCircle, Clock, Save, ArrowRight } from 'lucide-react-native';
 import { apiClient } from '../services/api';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function MeetingOutcomeScreen() {
   const router = useRouter();
@@ -177,8 +176,6 @@ export default function MeetingOutcomeScreen() {
           />
         </View>
       </View>
-
-      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }

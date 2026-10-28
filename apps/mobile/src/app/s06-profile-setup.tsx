@@ -14,7 +14,6 @@ import { Briefcase, Calendar, Globe, Linkedin, ArrowRight } from 'lucide-react-n
 import { apiClient } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 const AVAILABLE_INDUSTRIES = [
   'SaaS & Cloud',
@@ -202,8 +201,6 @@ export default function ProfileSetupScreen() {
           />
         </View>
       </View>
-
-      <PoweredByFooter style={{ marginTop: 30, marginBottom: 10 }} />
     </ScrollView>
   );
 }

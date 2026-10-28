@@ -25,7 +25,6 @@ import {
 import { apiClient } from '../services/api';
 import { useDraftStore } from '../store/draftStore';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function AddLeadScreen() {
   const router = useRouter();
@@ -330,8 +329,6 @@ export default function AddLeadScreen() {
           </View>
         </View>
       </View>
-
-      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }

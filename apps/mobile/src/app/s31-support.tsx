@@ -16,7 +16,6 @@ import {
   ChevronUp
 } from 'lucide-react-native';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 interface TicketItem {
   id: string;
@@ -189,8 +188,6 @@ export default function SupportDeskScreen() {
           ))}
         </>
       )}
-
-      <PoweredByFooter />
     </ScrollView>
   );
 }

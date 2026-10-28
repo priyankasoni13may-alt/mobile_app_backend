@@ -16,7 +16,6 @@ import {
   AlertCircle,
   Plus
 } from 'lucide-react-native';
-import { PoweredByFooter } from '../../components/PoweredByFooter';
 import { LumoraButton } from '../../components/LumoraButton';
 
 export default function MeetingsTabScreen() {
@@ -121,7 +120,6 @@ export default function MeetingsTabScreen() {
             </View>
           ))
         )}
-        <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
       </ScrollView>
     </View>
   );

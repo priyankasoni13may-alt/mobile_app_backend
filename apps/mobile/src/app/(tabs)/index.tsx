@@ -23,7 +23,6 @@ import {
 import { apiClient } from '../../services/api';
 import { useDraftStore } from '../../store/draftStore';
 import { useAuthStore } from '../../store/authStore';
-import { PoweredByFooter } from '../../components/PoweredByFooter';
 import { LumoraGradientText } from '../../components/LumoraGradientText';
 
 export default function HomeDashboardScreen() {
@@ -199,8 +198,6 @@ export default function HomeDashboardScreen() {
           })
         )}
       </View>
-
-      <PoweredByFooter style={{ marginTop: 12, marginBottom: 10 }} />
     </ScrollView>
   );
 }

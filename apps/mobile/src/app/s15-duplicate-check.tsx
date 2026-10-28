@@ -17,7 +17,6 @@ import {
   Lock
 } from 'lucide-react-native';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function DuplicateCheckScreen() {
   const router = useRouter();
@@ -68,8 +67,6 @@ export default function DuplicateCheckScreen() {
             </Text>
           </View>
         </View>
-
-        <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
       </ScrollView>
 
       <View style={styles.footer}>

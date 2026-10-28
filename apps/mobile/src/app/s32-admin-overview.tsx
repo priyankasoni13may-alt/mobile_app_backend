@@ -17,7 +17,6 @@ import {
   ExternalLink
 } from 'lucide-react-native';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function MobileAdminOverviewScreen() {
   const router = useRouter();
@@ -138,8 +137,6 @@ export default function MobileAdminOverviewScreen() {
           icon={<ExternalLink size={16} color="#FFFFFF" />}
         />
       </View>
-
-      <PoweredByFooter />
     </ScrollView>
   );
 }

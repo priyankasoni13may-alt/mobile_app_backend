@@ -23,7 +23,6 @@ import {
   Trash2
 } from 'lucide-react-native';
 import { apiClient } from '../services/api';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 function formatLeadDate(dateVal?: string | Date | null): string {
   if (!dateVal) return 'Recently';
@@ -228,7 +227,14 @@ export default function LeadDetailScreen() {
             {(lead.contactName || lead.contactPhone || lead.contactEmail) && (
               <View style={styles.contactBox}>
                 <Text style={styles.contactName}>
-                  {lead.contactName} {lead.contactRole ? `(${lead.contactRole})` : ''}
+                  {(() => {
+                    const name = (lead.contactName || '').trim();
+                    const role = (lead.contactRole || '').trim();
+                    if (!role || name.toLowerCase().includes(role.toLowerCase())) {
+                      return name;
+                    }
+                    return `${name} (${role})`;
+                  })()}
                 </Text>
                 <View style={styles.contactDetailsRow}>
                   {lead.contactPhone ? (
@@ -342,8 +348,6 @@ export default function LeadDetailScreen() {
           </View>
         </>
       )}
-
-      <PoweredByFooter style={{ marginTop: 20, marginBottom: 10 }} />
     </ScrollView>
   );
 }

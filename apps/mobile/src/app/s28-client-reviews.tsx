@@ -20,7 +20,6 @@ import {
   CheckCircle2
 } from 'lucide-react-native';
 import { LumoraButton } from '../components/LumoraButton';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 
 interface ReviewItem {
   id: string;
@@ -161,8 +160,6 @@ export default function ClientReviewsScreen() {
           </View>
         ))
       )}
-
-      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }

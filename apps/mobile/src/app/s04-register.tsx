@@ -12,7 +12,6 @@ import { useRouter } from 'expo-router';
 import { User, Mail, Phone, Lock, CheckSquare, Square } from 'lucide-react-native';
 import { apiClient } from '../services/api';
 import { useAuthStore } from '../store/authStore';
-import { PoweredByFooter } from '../components/PoweredByFooter';
 import { LumoraLogo } from '../components/LumoraLogo';
 import { LumoraGradientText } from '../components/LumoraGradientText';
 import { LumoraButton } from '../components/LumoraButton';
@@ -243,8 +242,6 @@ export default function RegisterScreen() {
             <Text style={styles.loginLink}>Sign In</Text>
           </TouchableOpacity>
         </View>
-
-        <PoweredByFooter style={{ marginTop: 20 }} />
       </View>
     </ScrollView>
   );
