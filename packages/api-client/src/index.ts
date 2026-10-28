@@ -322,6 +322,12 @@ export class LumoraApiClient {
     });
   }
 
+  async deleteLead(id: string) {
+    return this.request<{ success: boolean; message: string }>(`/leads/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
   async checkDuplicateLead(params: { companyWebsite?: string; contactEmail?: string; contactPhone?: string; companyName?: string }) {
     const query = new URLSearchParams();
     if (params.companyWebsite) query.set('companyWebsite', params.companyWebsite);

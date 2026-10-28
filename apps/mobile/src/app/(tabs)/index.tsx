@@ -45,13 +45,23 @@ export default function HomeDashboardScreen() {
           setLeadList(list);
 
           // Map recent leads to activity events
-          const mappedActivities = list.slice(0, 4).map((l: any) => ({
-            title: `Registered: ${l.companyName}`,
-            desc: l.needSummary ? l.needSummary.slice(0, 60) + '...' : `Stage: ${l.stage}`,
-            time: l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : 'Recently',
-            icon: Building2,
-            color: l.stage === 'QUALIFIED' ? '#10B981' : '#4F75FF'
-          }));
+          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          const mappedActivities = list.slice(0, 4).map((l: any) => {
+            let timeStr = 'Recently';
+            if (l.createdAt) {
+              const d = new Date(l.createdAt);
+              if (!isNaN(d.getTime())) {
+                timeStr = `${months[d.getMonth()]} ${d.getDate()}`;
+              }
+            }
+            return {
+              title: `Registered: ${l.companyName}`,
+              desc: l.needSummary ? l.needSummary.slice(0, 60) + '...' : `Stage: ${l.stage}`,
+              time: timeStr,
+              icon: Building2,
+              color: l.stage === 'QUALIFIED' ? '#10B981' : '#4F75FF'
+            };
+          });
           setActivities(mappedActivities);
         }
       }).catch(() => {});

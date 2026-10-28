@@ -1,169 +1,144 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   ScrollView,
-  StyleSheet,
-  Alert
+  StyleSheet
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { CheckCircle2, XCircle, HelpCircle } from 'lucide-react-native';
-import { apiClient } from '../services/api';
+import { useRouter } from 'expo-router';
+import { ShieldCheck, Lock, ArrowLeft, Building2 } from 'lucide-react-native';
 import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function QualificationFormScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
-  const leadId = (params.leadId as string) || '';
-
-  const [decisionMaker, setDecisionMaker] = useState('');
-  const [urgency, setUrgency] = useState('');
-  const [budgetRange, setBudgetRange] = useState('');
-  const [currentSolution, setCurrentSolution] = useState('');
-  const [unqualifiedReason, setUnqualifiedReason] = useState('');
-
-  const handleQualify = async (isQualified: boolean) => {
-    if (!isQualified && !unqualifiedReason.trim()) {
-      Alert.alert('Reason Required', 'Please specify why the lead is unqualified.');
-      return;
-    }
-
-    try {
-      if (leadId) {
-        await apiClient.updateLead(leadId, {
-          stage: isQualified ? 'QUALIFIED' : 'UNQUALIFIED',
-          unqualifiedReason: !isQualified ? unqualifiedReason : undefined
-        });
-      }
-
-      Alert.alert(
-        'Lead Qualification Recorded',
-        `Lead has been marked as ${isQualified ? 'QUALIFIED FIT' : 'UNQUALIFIED'}.`,
-        [{ text: 'OK', onPress: () => router.replace('/(tabs)/leads') }]
-      );
-    } catch {
-      router.replace('/(tabs)/leads');
-    }
-  };
 
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
     >
-      <View style={styles.header}>
-        <Text style={styles.title}>Lead Qualification Form</Text>
-        <Text style={styles.subtitle}>Assess prospect readiness before committing sales resources</Text>
+      <View style={styles.card}>
+        <View style={styles.iconCircle}>
+          <Lock size={32} color="#4F75FF" />
+        </View>
+
+        <Text style={styles.title}>Admin-Only Governance</Text>
+        <Text style={styles.badge}>Restricted Operational Workflow</Text>
+
+        <Text style={styles.description}>
+          Lead qualification, ICP validation, and stage progression are strictly governed by Lumora Operations via the Admin Panel UI.
+        </Text>
+
+        <View style={styles.infoBox}>
+          <ShieldCheck size={20} color="#059669" />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.infoBoxTitle}>Verification in Progress</Text>
+            <Text style={styles.infoBoxBody}>
+              Once Lumora Operations verifies your prospect submission, the account will be approved and discovery meeting scheduling will unlock automatically in your pipeline.
+            </Text>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          onPress={() => router.replace('/(tabs)/leads')}
+          style={styles.returnBtn}
+        >
+          <ArrowLeft size={18} color="#FFFFFF" />
+          <Text style={styles.returnBtnText}>Return to Leads Pipeline</Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.form}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>1. Decision-Maker Authority</Text>
-          <TextInput
-            value={decisionMaker}
-            onChangeText={setDecisionMaker}
-            placeholder="Enter decision-maker authority details"
-            placeholderTextColor="#94A3B8"
-            style={styles.input}
-            cursorColor="#4F75FF"
-            selectionColor="#4F75FF"
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>2. Timeline & Urgency</Text>
-          <TextInput
-            value={urgency}
-            onChangeText={setUrgency}
-            placeholder="Enter project timeline or urgency"
-            placeholderTextColor="#94A3B8"
-            style={styles.input}
-            cursorColor="#4F75FF"
-            selectionColor="#4F75FF"
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>3. Estimated Budget Range</Text>
-          <TextInput
-            value={budgetRange}
-            onChangeText={setBudgetRange}
-            placeholder="Enter estimated budget range"
-            placeholderTextColor="#94A3B8"
-            style={styles.input}
-            cursorColor="#4F75FF"
-            selectionColor="#4F75FF"
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>4. Current Solution / Incumbent Agency</Text>
-          <TextInput
-            value={currentSolution}
-            onChangeText={setCurrentSolution}
-            placeholder="Enter current vendor or solution"
-            placeholderTextColor="#94A3B8"
-            style={styles.input}
-            cursorColor="#4F75FF"
-            selectionColor="#4F75FF"
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>If Unqualified — Mandatory Reason</Text>
-          <TextInput
-            value={unqualifiedReason}
-            onChangeText={setUnqualifiedReason}
-            placeholder="Enter reason why lead is unqualified"
-            placeholderTextColor="#94A3B8"
-            style={styles.textArea}
-            cursorColor="#4F75FF"
-            selectionColor="#4F75FF"
-            multiline
-          />
-        </View>
-
-        <View style={styles.btnRow}>
-          <TouchableOpacity
-            onPress={() => handleQualify(false)}
-            style={styles.unqualifiedBtn}
-          >
-            <XCircle size={16} color="#EF4444" />
-            <Text style={styles.unqualifiedText}>Mark Unqualified</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => handleQualify(true)}
-            style={styles.qualifiedBtn}
-          >
-            <CheckCircle2 size={16} color="#FFFFFF" />
-            <Text style={styles.qualifiedText}>Mark Qualified Fit</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
+      <PoweredByFooter style={{ marginTop: 30, marginBottom: 10 }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
-  content: { padding: 16, paddingBottom: 60 },
-  header: { marginBottom: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#0B0F26' },
-  subtitle: { fontSize: 13, color: '#64748B', marginTop: 4 },
-  form: { gap: 14 },
-  inputGroup: { gap: 6 },
-  label: { fontSize: 12, fontWeight: '600', color: '#334155' },
-  input: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 10, paddingHorizontal: 12, height: 48, color: '#0B0F26', fontSize: 13 },
-  textArea: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 10, padding: 12, color: '#0B0F26', fontSize: 13, height: 72, textAlignVertical: 'top' },
-  btnRow: { flexDirection: 'row', gap: 10, marginTop: 14 },
-  unqualifiedBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#FEF2F2', height: 48, borderRadius: 24, borderWidth: 1, borderColor: '#FEE2E2' },
-  unqualifiedText: { fontSize: 13, fontWeight: 'bold', color: '#EF4444' },
-  qualifiedBtn: { flex: 1.3, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#10B981', height: 48, borderRadius: 24 },
-  qualifiedText: { fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' }
+  content: { padding: 20, paddingTop: 40, alignItems: 'center' },
+  card: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 3
+  },
+  iconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#EEF2FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0B0F26',
+    textAlign: 'center'
+  },
+  badge: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#4F75FF',
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 8,
+    marginBottom: 16
+  },
+  description: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 20
+  },
+  infoBox: {
+    flexDirection: 'row',
+    gap: 12,
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    borderRadius: 12,
+    padding: 14,
+    width: '100%',
+    marginBottom: 24
+  },
+  infoBoxTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#047857'
+  },
+  infoBoxBody: {
+    fontSize: 11,
+    color: '#065F46',
+    marginTop: 3,
+    lineHeight: 16
+  },
+  returnBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#4F75FF',
+    height: 48,
+    borderRadius: 24,
+    width: '100%'
+  },
+  returnBtnText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold'
+  }
 });

@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Body,
   Query,
@@ -124,6 +125,12 @@ export class LeadsController {
     @Body() body: { reason?: string }
   ) {
     return this.leadsService.rejectLead(id, user.id, body?.reason);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a prospect submission (Admin or submitting partner if pending)' })
+  async deleteLead(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.leadsService.deleteLead(id, user);
   }
 }
 

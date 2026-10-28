@@ -17,7 +17,8 @@ import {
   ExternalLink,
   ShieldAlert,
   ThumbsUp,
-  ThumbsDown
+  ThumbsDown,
+  Trash2
 } from 'lucide-react';
 
 export default function LeadManagementPage() {
@@ -100,6 +101,26 @@ export default function LeadManagementPage() {
       }
     } catch (err: any) {
       alert(err.message || 'Error rejecting prospect.');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteLead = async (lead: any) => {
+    if (!confirm(`Are you sure you want to permanently delete prospect "${lead.companyName}"? This action cannot be undone.`)) {
+      return;
+    }
+    setActionLoading(lead.id);
+    try {
+      const res = await fetch(`/api/leads/${lead.id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setLeads((prev) => prev.filter((l) => l.id !== lead.id));
+      } else {
+        alert(data.error || 'Failed to delete lead.');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Error deleting lead.');
     } finally {
       setActionLoading(null);
     }
@@ -317,33 +338,44 @@ export default function LeadManagementPage() {
                     </td>
 
                     <td className="py-3.5 px-4 text-right">
-                      {lead.stage === 'NEW' ? (
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleApproveLead(lead)}
-                            disabled={actionLoading === lead.id}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-sm"
-                          >
-                            <ThumbsUp className="w-3.5 h-3.5" /> Approve
-                          </button>
-                          <button
-                            onClick={() => {
-                              setRejectLeadItem(lead);
-                              setRejectModalOpen(true);
-                            }}
-                            disabled={actionLoading === lead.id}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 disabled:opacity-50 text-xs font-semibold transition-all"
-                          >
-                            <ThumbsDown className="w-3.5 h-3.5" /> Reject
-                          </button>
-                        </div>
-                      ) : lead.stage === 'QUALIFIED' ? (
-                        <span className="text-xs text-emerald-400 font-semibold inline-flex items-center gap-1">
-                          <CheckCircle className="w-4 h-4" /> Ready for Meeting
-                        </span>
-                      ) : (
-                        <span className="text-xs text-slate-500 font-medium">Processed</span>
-                      )}
+                      <div className="flex items-center justify-end gap-2">
+                        {lead.stage === 'NEW' ? (
+                          <>
+                            <button
+                              onClick={() => handleApproveLead(lead)}
+                              disabled={actionLoading === lead.id}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-sm"
+                            >
+                              <ThumbsUp className="w-3.5 h-3.5" /> Approve
+                            </button>
+                            <button
+                              onClick={() => {
+                                setRejectLeadItem(lead);
+                                setRejectModalOpen(true);
+                              }}
+                              disabled={actionLoading === lead.id}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 disabled:opacity-50 text-xs font-semibold transition-all"
+                            >
+                              <ThumbsDown className="w-3.5 h-3.5" /> Reject
+                            </button>
+                          </>
+                        ) : lead.stage === 'QUALIFIED' ? (
+                          <span className="text-xs text-emerald-400 font-semibold inline-flex items-center gap-1">
+                            <CheckCircle className="w-4 h-4" /> Ready for Meeting
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate-500 font-medium">Processed</span>
+                        )}
+
+                        <button
+                          onClick={() => handleDeleteLead(lead)}
+                          disabled={actionLoading === lead.id}
+                          title="Delete Lead"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

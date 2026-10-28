@@ -232,6 +232,28 @@ export class LeadsService {
     }
 
     const normDomain = normalizeDomain(data.companyWebsite);
+    const normEmail = data.contactEmail?.trim().toLowerCase();
+
+    // 2. Strict Duplicate Prevention: Check if domain or contact email already exists
+    const duplicateOr: any[] = [];
+    if (normDomain) {
+      duplicateOr.push({ companyWebsite: { contains: normDomain, mode: 'insensitive' } });
+    }
+    if (normEmail) {
+      duplicateOr.push({ contactEmail: { equals: normEmail, mode: 'insensitive' } });
+    }
+
+    if (duplicateOr.length > 0) {
+      const existingDuplicate = await this.prisma.lead.findFirst({
+        where: { OR: duplicateOr },
+        select: { id: true, companyName: true, stage: true }
+      });
+      if (existingDuplicate) {
+        throw new BadRequestException(
+          `A prospect for "${existingDuplicate.companyName}" (${existingDuplicate.stage}) is already registered. Duplicate submissions are not permitted.`
+        );
+      }
+    }
 
     // Fetch default company & owner (Sales Manager or Admin)
     const bu = await this.prisma.businessUnit.findUnique({
@@ -300,6 +322,18 @@ export class LeadsService {
       existing.partnerId !== user.id
     ) {
       throw new ForbiddenException('You cannot edit another partner’s lead');
+    }
+
+    // Lead stage verification and qualification is STRICTLY restricted to Admins/Operations
+    if (data.stage && data.stage !== existing.stage) {
+      const canChangeStage = user.roles?.some((r: string) =>
+        [UserRoleType.SUPER_ADMIN, UserRoleType.OPERATIONS, UserRoleType.SALES].includes(r as UserRoleType)
+      );
+      if (!canChangeStage) {
+        throw new ForbiddenException(
+          'Lead qualification and approval is strictly restricted to administrative operations. Partners cannot verify or qualify their own leads.'
+        );
+      }
     }
 
     const updated = await this.prisma.$transaction(async (tx) => {
@@ -480,6 +514,32 @@ export class LeadsService {
     });
 
     return updated;
+  }
+
+  async deleteLead(id: string, user: any) {
+    const lead = await this.prisma.lead.findUnique({ where: { id } });
+    if (!lead) throw new NotFoundException('Lead not found');
+
+    const isAdmin = user.roles?.some((r: string) =>
+      [UserRoleType.SUPER_ADMIN, UserRoleType.OPERATIONS].includes(r as UserRoleType)
+    );
+    const isOwnerPartner = lead.partnerId === user.id && lead.stage === LeadStage.NEW;
+
+    if (!isAdmin && !isOwnerPartner) {
+      throw new ForbiddenException(
+        'Only administrators or the submitting partner (while lead is still pending approval) can delete a prospect submission.'
+      );
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.leadActivity.deleteMany({ where: { leadId: id } });
+      await tx.task.deleteMany({ where: { leadId: id } });
+      await tx.meeting.deleteMany({ where: { leadId: id } });
+      await tx.deal.deleteMany({ where: { leadId: id } });
+      await tx.lead.delete({ where: { id } });
+    });
+
+    return { success: true, message: `Prospect "${lead.companyName}" was deleted successfully.` };
   }
 }
 

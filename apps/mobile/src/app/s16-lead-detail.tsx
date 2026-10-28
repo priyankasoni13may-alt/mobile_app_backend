@@ -5,7 +5,8 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import {
@@ -18,10 +19,23 @@ import {
   AlertCircle,
   ShieldCheck,
   Phone,
-  Mail
+  Mail,
+  Trash2
 } from 'lucide-react-native';
 import { apiClient } from '../services/api';
 import { PoweredByFooter } from '../components/PoweredByFooter';
+
+function formatLeadDate(dateVal?: string | Date | null): string {
+  if (!dateVal) return 'Recently';
+  try {
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return 'Recently';
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  } catch {
+    return 'Recently';
+  }
+}
 
 export default function LeadDetailScreen() {
   const router = useRouter();
@@ -43,6 +57,37 @@ export default function LeadDetailScreen() {
     businessUnitName: 'Lumora Partner Network'
   });
   const [loading, setLoading] = useState(Boolean(leadId));
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteLead = () => {
+    Alert.alert(
+      'Withdraw Prospect Submission',
+      `Are you sure you want to withdraw "${lead.companyName}"? This prospect will be permanently removed.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Withdraw & Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setDeleting(true);
+              await apiClient.deleteLead(lead.id);
+              Alert.alert('Prospect Withdrawn', 'The prospect submission has been removed from the pipeline.', [
+                {
+                  text: 'OK',
+                  onPress: () => router.replace('/(tabs)/leads')
+                }
+              ]);
+            } catch (err: any) {
+              Alert.alert('Error', err?.message || 'Failed to withdraw prospect.');
+            } finally {
+              setDeleting(false);
+            }
+          }
+        }
+      ]
+    );
+  };
 
   useEffect(() => {
     if (leadId) {
@@ -173,6 +218,12 @@ export default function LeadDetailScreen() {
 
             <Text style={styles.companyName}>{lead.companyName}</Text>
             {lead.companyWebsite ? <Text style={styles.websiteText}>{lead.companyWebsite}</Text> : null}
+            {lead.createdAt ? (
+              <View style={styles.submittedRow}>
+                <Clock size={12} color="#64748B" />
+                <Text style={styles.submittedText}>Submitted: {formatLeadDate(lead.createdAt)}</Text>
+              </View>
+            ) : null}
 
             {(lead.contactName || lead.contactPhone || lead.contactEmail) && (
               <View style={styles.contactBox}>
@@ -204,7 +255,7 @@ export default function LeadDetailScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.pendingTitle}>Under Administrative Verification</Text>
                 <Text style={styles.pendingSubtitle}>
-                  This prospect has been submitted to Operations. Once reviewed and approved from the admin panel, discovery meeting booking and diagnostic proposals will be unlocked.
+                  This prospect has been submitted to Operations. Qualification & approval are strictly governed by Lumora Operations via the Admin Panel UI.
                 </Text>
               </View>
             </View>
@@ -254,29 +305,40 @@ export default function LeadDetailScreen() {
 
           {/* Action Shortcuts */}
           <View style={styles.actionGrid}>
-            <TouchableOpacity
-              onPress={() => router.push({ pathname: '/s18-book-meeting', params: { leadId: lead.id, companyName: lead.companyName } })}
-              style={styles.actionBtn}
-            >
-              <Calendar size={18} color="#4F75FF" />
-              <Text style={styles.actionBtnText}>Book Meeting</Text>
-            </TouchableOpacity>
+            {lead.stage === 'QUALIFIED' ? (
+              <>
+                <TouchableOpacity
+                  onPress={() => router.push({ pathname: '/s18-book-meeting', params: { leadId: lead.id, companyName: lead.companyName } })}
+                  style={styles.actionBtn}
+                >
+                  <Calendar size={18} color="#4F75FF" />
+                  <Text style={styles.actionBtnText}>Book Meeting</Text>
+                </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() => router.push({ pathname: '/s17-qualification', params: { leadId: lead.id } })}
-              style={styles.actionBtn}
-            >
-              <CheckCircle2 size={18} color="#8B5CF6" />
-              <Text style={styles.actionBtnText}>Qualify Lead</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => router.push({ pathname: '/s22-diagnostic', params: { leadId: lead.id } })}
-              style={styles.actionBtn}
-            >
-              <Layers size={18} color="#10B981" />
-              <Text style={styles.actionBtnText}>Diagnostic Deal</Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push({ pathname: '/s22-diagnostic', params: { leadId: lead.id } })}
+                  style={styles.actionBtn}
+                >
+                  <Layers size={18} color="#10B981" />
+                  <Text style={styles.actionBtnText}>Diagnostic Deal</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <TouchableOpacity
+                onPress={handleDeleteLead}
+                disabled={deleting}
+                style={[styles.actionBtn, styles.deleteActionBtn]}
+              >
+                {deleting ? (
+                  <ActivityIndicator size="small" color="#DC2626" />
+                ) : (
+                  <>
+                    <Trash2 size={18} color="#DC2626" />
+                    <Text style={[styles.actionBtnText, { color: '#DC2626' }]}>Withdraw / Delete Lead</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            )}
           </View>
         </>
       )}
@@ -338,5 +400,8 @@ const styles = StyleSheet.create({
   consentText: { fontSize: 11, color: '#94A3B8', marginTop: 4, fontStyle: 'italic' },
   actionGrid: { flexDirection: 'row', gap: 10 },
   actionBtn: { flex: 1, backgroundColor: '#FFFFFF', borderRadius: 12, paddingVertical: 14, alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1, borderColor: '#EEF2F6', elevation: 1 },
-  actionBtnText: { fontSize: 12, fontWeight: '700', color: '#0B0F26' }
+  actionBtnText: { fontSize: 12, fontWeight: '700', color: '#0B0F26' },
+  deleteActionBtn: { borderColor: '#FECACA', backgroundColor: '#FEF2F2' },
+  submittedRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+  submittedText: { fontSize: 11, color: '#64748B', fontWeight: '500' }
 });

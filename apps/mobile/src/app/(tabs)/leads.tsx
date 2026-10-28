@@ -26,6 +26,18 @@ import { apiClient } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 import { PoweredByFooter } from '../../components/PoweredByFooter';
 
+function formatLeadDate(dateVal?: string | Date | null): string {
+  if (!dateVal) return 'Recently';
+  try {
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return 'Recently';
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  } catch {
+    return 'Recently';
+  }
+}
+
 export default function LeadsTabScreen() {
   const router = useRouter();
   const { user } = useAuthStore();
@@ -314,7 +326,7 @@ export default function LeadsTabScreen() {
                 <View style={styles.cardFooter}>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.dateLabel}>
-                      Submitted: {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently'}
+                      Submitted: {formatLeadDate(lead.createdAt)}
                     </Text>
                   </View>
 
@@ -345,17 +357,8 @@ export default function LeadsTabScreen() {
           })
         )}
 
-        <PoweredByFooter style={{ marginTop: 20, marginBottom: 40 }} />
+        <PoweredByFooter style={{ marginTop: 20, marginBottom: 50 }} />
       </ScrollView>
-
-      {/* Floating Action Button (FAB) */}
-      <TouchableOpacity
-        activeOpacity={0.88}
-        onPress={() => router.push('/s14-add-lead')}
-        style={styles.fabBtn}
-      >
-        <Plus size={26} color="#FFFFFF" />
-      </TouchableOpacity>
     </View>
   );
 }
