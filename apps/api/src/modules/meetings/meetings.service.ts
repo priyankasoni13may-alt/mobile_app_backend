@@ -77,6 +77,11 @@ export class MeetingsService {
     const scheduledDate = new Date(data.scheduledAtUtc);
 
     const meeting = await this.prisma.$transaction(async (tx) => {
+      const allInvitees = Array.from(new Set([
+        lead.contactEmail,
+        ...(Array.isArray(data.inviteeEmails) ? data.inviteeEmails : [])
+      ].filter(Boolean)));
+
       const m = await tx.meeting.create({
         data: {
           leadId: data.leadId,
@@ -88,7 +93,7 @@ export class MeetingsService {
           durationMinutes: data.durationMinutes || 30,
           mode: data.mode || 'ONLINE',
           meetingLinkOrLocation: data.meetingLinkOrLocation,
-          inviteeEmails: data.inviteeEmails || [],
+          inviteeEmails: allInvitees,
           meetingStatus: MeetingStatus.SCHEDULED
         }
       });
@@ -106,10 +111,46 @@ export class MeetingsService {
           leadId: lead.id,
           actorId: user.id,
           activityType: 'MEETING_SCHEDULED',
-          notes: `Meeting "${data.title}" scheduled for ${scheduledDate.toISOString()}`,
+          notes: `Meeting "${data.title}" scheduled for ${scheduledDate.toISOString()} with ${lead.contactName || lead.companyName}`,
           channel: data.mode || 'ONLINE'
         }
       });
+
+      // 1. Notify Partner (Confirmation)
+      await tx.notification.create({
+        data: {
+          userId: user.id,
+          type: 'MEETING_SCHEDULED',
+          title: `Meeting Booked: ${lead.companyName}`,
+          message: `Discovery call with ${lead.contactName || lead.companyName} scheduled for ${scheduledDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} (${data.mode || 'ONLINE'}).`,
+          dataJson: { meetingId: m.id, leadId: lead.id }
+        }
+      });
+
+      // 2. Notify Admins & Operations Team (Assign solutions specialist)
+      const adminUsers = await tx.user.findMany({
+        where: {
+          userRoles: {
+            some: {
+              role: {
+                name: { in: ['SUPER_ADMIN', 'OPERATIONS'] }
+              }
+            }
+          }
+        },
+        select: { id: true }
+      });
+      for (const admin of adminUsers) {
+        await tx.notification.create({
+          data: {
+            userId: admin.id,
+            type: 'MEETING_SCHEDULED',
+            title: `New Meeting: ${lead.companyName}`,
+            message: `Partner ${user.fullName || user.email} scheduled a discovery call for ${lead.companyName} (${lead.contactName || 'No contact'}, ${lead.contactEmail || 'No email'}). Solutions architect required.`,
+            dataJson: { meetingId: m.id, leadId: lead.id }
+          }
+        });
+      }
 
       return m;
     });
