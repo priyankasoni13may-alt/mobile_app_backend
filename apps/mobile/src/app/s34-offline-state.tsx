@@ -12,13 +12,13 @@ import {
   WifiOff,
   RefreshCw,
   Database,
-  ShieldAlert,
-  ArrowRight,
   CheckCircle2,
   Trash2,
   FileText
 } from 'lucide-react-native';
 import { useDraftStore } from '../store/draftStore';
+import { LumoraButton } from '../components/LumoraButton';
+import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function OfflineStateScreen() {
   const router = useRouter();
@@ -82,7 +82,9 @@ export default function OfflineStateScreen() {
       {/* Unsynced Drafts */}
       <View style={styles.card}>
         <View style={styles.cardHeader}>
-          <Database size={18} color="#8CB4F5" />
+          <View style={styles.cardIconCircle}>
+            <Database size={18} color="#4F75FF" />
+          </View>
           <Text style={styles.cardTitle}>Local Encrypted Drafts ({hasDraft ? 1 : 0})</Text>
         </View>
 
@@ -127,14 +129,11 @@ export default function OfflineStateScreen() {
 
       {/* Actions */}
       <View style={styles.actionCol}>
-        <TouchableOpacity
-          activeOpacity={0.85}
+        <LumoraButton
+          title={syncing ? 'Verifying Network...' : 'Test Connection & Sync Now'}
           onPress={handleSyncNow}
-          style={styles.syncBtn}
-        >
-          <RefreshCw size={18} color="#FFFFFF" />
-          <Text style={styles.syncBtnText}>{syncing ? 'Verifying Network...' : 'Test Connection & Sync Now'}</Text>
-        </TouchableOpacity>
+          icon={<RefreshCw size={18} color="#FFFFFF" />}
+        />
 
         <TouchableOpacity
           activeOpacity={0.8}
@@ -144,37 +143,38 @@ export default function OfflineStateScreen() {
           <Text style={styles.supportBtnText}>Report Persistent Server Error</Text>
         </TouchableOpacity>
       </View>
+
+      <PoweredByFooter />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
-  content: { padding: 18, paddingBottom: 60, gap: 16 },
-  alertCard: { backgroundColor: '#0B1026', borderRadius: 14, borderWidth: 1, borderColor: '#EF444450', padding: 20, alignItems: 'center', textAlign: 'center', gap: 10 },
-  iconCircle: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#EF444415', alignItems: 'center', justifyContent: 'center' },
-  alertTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFFFFF' },
-  alertSub: { fontSize: 12, color: '#94A3B8', textAlign: 'center', lineHeight: 18 },
-  guaranteeBox: { flexDirection: 'row', gap: 10, backgroundColor: '#10B98115', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#10B98140' },
-  guaranteeText: { flex: 1, fontSize: 11, color: '#A7F3D0', lineHeight: 16 },
-  card: { backgroundColor: '#0B1026', borderRadius: 14, borderWidth: 1, borderColor: '#1E294B', padding: 16, gap: 12 },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  cardTitle: { fontSize: 14, fontWeight: 'bold', color: '#FFFFFF' },
-  emptyText: { fontSize: 12, color: '#64748B', fontStyle: 'italic', paddingVertical: 8 },
-  draftBox: { backgroundColor: '#132438', borderRadius: 10, borderWidth: 1, borderColor: '#1E3A5F', padding: 12, gap: 6 },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  content: { padding: 18, paddingBottom: 40, gap: 16 },
+  alertCard: { backgroundColor: '#FEF2F2', borderRadius: 16, borderWidth: 1, borderColor: '#FECACA', padding: 20, alignItems: 'center', gap: 10 },
+  iconCircle: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center' },
+  alertTitle: { fontSize: 16, fontWeight: '700', color: '#991B1B' },
+  alertSub: { fontSize: 12, color: '#7F1D1D', textAlign: 'center', lineHeight: 18 },
+  guaranteeBox: { flexDirection: 'row', gap: 10, backgroundColor: '#ECFDF5', padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#A7F3D0', alignItems: 'center' },
+  guaranteeText: { flex: 1, fontSize: 12, color: '#065F46', lineHeight: 17, fontWeight: '500' },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#EEF2F6', padding: 16, gap: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 3, elevation: 1 },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  cardIconCircle: { width: 34, height: 34, borderRadius: 17, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
+  cardTitle: { fontSize: 14, fontWeight: '700', color: '#0B0F26' },
+  emptyText: { fontSize: 13, color: '#64748B', fontStyle: 'italic', paddingVertical: 8 },
+  draftBox: { backgroundColor: '#F8FAFC', borderRadius: 12, borderWidth: 1, borderColor: '#EEF2F6', padding: 14, gap: 6 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  draftName: { fontSize: 14, fontWeight: 'bold', color: '#FFFFFF' },
-  unsyncedBadge: { backgroundColor: '#F59E0B20', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-  unsyncedText: { fontSize: 9, fontWeight: 'bold', color: '#F59E0B' },
-  draftDetail: { fontSize: 11, color: '#94A3B8' },
-  draftActions: { flexDirection: 'row', gap: 10, marginTop: 8 },
-  resumeBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#5B8EE2', paddingVertical: 8, borderRadius: 6 },
-  resumeBtnText: { color: '#FFFFFF', fontSize: 12, fontWeight: 'bold' },
-  discardBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#EF444415', paddingHorizontal: 12, borderRadius: 6 },
-  discardBtnText: { color: '#EF4444', fontSize: 12, fontWeight: '600' },
-  actionCol: { gap: 10 },
-  syncBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#003566', paddingVertical: 14, borderRadius: 10 },
-  syncBtnText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 14 },
+  draftName: { fontSize: 14, fontWeight: '700', color: '#0B0F26' },
+  unsyncedBadge: { backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  unsyncedText: { fontSize: 10, fontWeight: '700', color: '#B45309' },
+  draftDetail: { fontSize: 12, color: '#64748B' },
+  draftActions: { flexDirection: 'row', gap: 10, marginTop: 10 },
+  resumeBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#4F75FF', paddingVertical: 10, borderRadius: 8 },
+  resumeBtnText: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
+  discardBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FEF2F2', paddingHorizontal: 14, borderRadius: 8 },
+  discardBtnText: { color: '#EF4444', fontSize: 13, fontWeight: '600' },
+  actionCol: { gap: 12, marginTop: 4 },
   supportBtn: { alignItems: 'center', paddingVertical: 8 },
-  supportBtnText: { color: '#94A3B8', fontSize: 12 }
+  supportBtnText: { color: '#4F75FF', fontSize: 13, fontWeight: '600' }
 });

@@ -14,10 +14,10 @@ import {
   AlertTriangle,
   DollarSign,
   FileCheck2,
-  ExternalLink,
-  ChevronRight,
-  BarChart3
+  ExternalLink
 } from 'lucide-react-native';
+import { LumoraButton } from '../components/LumoraButton';
+import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function MobileAdminOverviewScreen() {
   const router = useRouter();
@@ -33,7 +33,9 @@ export default function MobileAdminOverviewScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Executive Notice */}
       <View style={styles.banner}>
-        <ShieldCheck size={20} color="#5B8EE2" />
+        <View style={styles.iconCircle}>
+          <ShieldCheck size={22} color="#4F75FF" />
+        </View>
         <View style={{ flex: 1 }}>
           <Text style={styles.bannerTitle}>Executive Control Mobile Snapshot</Text>
           <Text style={styles.bannerSub}>
@@ -48,12 +50,12 @@ export default function MobileAdminOverviewScreen() {
         {/* Card 1 */}
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => Alert.alert('Partner Queue', '3 partner applications awaiting ID and background verification.')}
+          onPress={() => Alert.alert('Partner Queue', 'Partner applications awaiting ID and background verification.')}
           style={styles.card}
         >
           <View style={styles.rowBetween}>
-            <View style={[styles.iconBox, { backgroundColor: '#5B8EE215' }]}>
-              <Users size={18} color="#5B8EE2" />
+            <View style={[styles.iconBox, { backgroundColor: '#EEF2FF' }]}>
+              <Users size={18} color="#4F75FF" />
             </View>
             <View style={styles.badge}>
               <Text style={styles.badgeText}>High Priority</Text>
@@ -71,10 +73,10 @@ export default function MobileAdminOverviewScreen() {
           style={styles.card}
         >
           <View style={styles.rowBetween}>
-            <View style={[styles.iconBox, { backgroundColor: '#F59E0B15' }]}>
-              <AlertTriangle size={18} color="#F59E0B" />
+            <View style={[styles.iconBox, { backgroundColor: '#FEF3C7' }]}>
+              <AlertTriangle size={18} color="#D97706" />
             </View>
-            <View style={[styles.badge, { backgroundColor: '#10B98120' }]}>
+            <View style={[styles.badge, { backgroundColor: '#ECFDF5' }]}>
               <Text style={[styles.badgeText, { color: '#10B981' }]}>Clean</Text>
             </View>
           </View>
@@ -90,10 +92,10 @@ export default function MobileAdminOverviewScreen() {
           style={styles.card}
         >
           <View style={styles.rowBetween}>
-            <View style={[styles.iconBox, { backgroundColor: '#8CB4F515' }]}>
-              <FileCheck2 size={18} color="#8CB4F5" />
+            <View style={[styles.iconBox, { backgroundColor: '#EEF2FF' }]}>
+              <FileCheck2 size={18} color="#4F75FF" />
             </View>
-            <View style={[styles.badge, { backgroundColor: '#10B98120' }]}>
+            <View style={[styles.badge, { backgroundColor: '#ECFDF5' }]}>
               <Text style={[styles.badgeText, { color: '#10B981' }]}>Current</Text>
             </View>
           </View>
@@ -109,10 +111,10 @@ export default function MobileAdminOverviewScreen() {
           style={styles.card}
         >
           <View style={styles.rowBetween}>
-            <View style={[styles.iconBox, { backgroundColor: '#10B98115' }]}>
+            <View style={[styles.iconBox, { backgroundColor: '#ECFDF5' }]}>
               <DollarSign size={18} color="#10B981" />
             </View>
-            <View style={[styles.badge, { backgroundColor: '#10B98120' }]}>
+            <View style={[styles.badge, { backgroundColor: '#ECFDF5' }]}>
               <Text style={[styles.badgeText, { color: '#10B981' }]}>Cleared</Text>
             </View>
           </View>
@@ -130,34 +132,36 @@ export default function MobileAdminOverviewScreen() {
             Access all 14 administrative modules: Partner CMS, Service Catalogue, Commission Policies, Audit Diffs, and CSV Exports.
           </Text>
         </View>
-        <TouchableOpacity onPress={handleOpenWebConsole} style={styles.desktopBtn}>
-          <ExternalLink size={18} color="#FFFFFF" />
-          <Text style={styles.desktopBtnText}>Open Console</Text>
-        </TouchableOpacity>
+        <LumoraButton
+          title="Open Console"
+          onPress={handleOpenWebConsole}
+          icon={<ExternalLink size={16} color="#FFFFFF" />}
+        />
       </View>
+
+      <PoweredByFooter />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
-  content: { padding: 16, paddingBottom: 60, gap: 16 },
-  banner: { flexDirection: 'row', gap: 12, backgroundColor: '#0B1026', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#5B8EE240' },
-  bannerTitle: { fontSize: 14, fontWeight: 'bold', color: '#FFFFFF' },
-  bannerSub: { fontSize: 11, color: '#94A3B8', marginTop: 4, lineHeight: 16 },
-  sectionHeader: { fontSize: 13, fontWeight: 'bold', color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: 0.5 },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  content: { padding: 16, paddingBottom: 40, gap: 16 },
+  banner: { flexDirection: 'row', gap: 12, backgroundColor: '#F8FAFC', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#EEF2F6', alignItems: 'center' },
+  iconCircle: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#EEF2FF', alignItems: 'center', justifyContent: 'center' },
+  bannerTitle: { fontSize: 15, fontWeight: '700', color: '#0B0F26' },
+  bannerSub: { fontSize: 12, color: '#64748B', marginTop: 4, lineHeight: 17 },
+  sectionHeader: { fontSize: 13, fontWeight: '700', color: '#0B0F26', textTransform: 'uppercase', letterSpacing: 0.5 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  card: { width: '48%', backgroundColor: '#0B1026', borderRadius: 12, borderWidth: 1, borderColor: '#1E294B', padding: 14, gap: 4 },
+  card: { width: '48%', backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: '#EEF2F6', padding: 14, gap: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 3, elevation: 1 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  iconBox: { width: 32, height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-  badge: { backgroundColor: '#5B8EE220', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-  badgeText: { fontSize: 9, fontWeight: 'bold', color: '#5B8EE2' },
-  countText: { fontSize: 24, fontWeight: '800', color: '#FFFFFF', marginTop: 4 },
-  labelText: { fontSize: 12, fontWeight: '700', color: '#E2E8F0' },
-  subText: { fontSize: 10, color: '#64748B' },
-  desktopCard: { backgroundColor: '#132438', borderRadius: 12, borderWidth: 1, borderColor: '#8CB4F540', padding: 16, gap: 12 },
-  desktopTitle: { fontSize: 14, fontWeight: 'bold', color: '#FFFFFF' },
-  desktopSub: { fontSize: 11, color: '#94A3B8', lineHeight: 16 },
-  desktopBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#003566', paddingVertical: 10, borderRadius: 8 },
-  desktopBtnText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 13 }
+  iconBox: { width: 34, height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  badge: { backgroundColor: '#EEF2FF', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
+  badgeText: { fontSize: 10, fontWeight: '700', color: '#4F75FF' },
+  countText: { fontSize: 24, fontWeight: '800', color: '#0B0F26', marginTop: 4 },
+  labelText: { fontSize: 13, fontWeight: '700', color: '#334155' },
+  subText: { fontSize: 11, color: '#94A3B8' },
+  desktopCard: { backgroundColor: '#F8FAFC', borderRadius: 16, borderWidth: 1, borderColor: '#EEF2F6', padding: 16, gap: 14 },
+  desktopTitle: { fontSize: 15, fontWeight: '700', color: '#0B0F26' },
+  desktopSub: { fontSize: 12, color: '#64748B', lineHeight: 18 }
 });

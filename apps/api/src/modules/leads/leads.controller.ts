@@ -107,4 +107,23 @@ export class LeadsController {
   ) {
     return this.leadsService.reassign(id, body.newOwnerId, body.reason, user.id);
   }
+
+  @Post(':id/approve')
+  @Roles(UserRoleType.SUPER_ADMIN, UserRoleType.OPERATIONS, UserRoleType.SALES)
+  @ApiOperation({ summary: 'Approve and verify a newly submitted prospect (Admin/Ops)' })
+  async approveLead(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.leadsService.approveLead(id, user.id);
+  }
+
+  @Post(':id/reject')
+  @Roles(UserRoleType.SUPER_ADMIN, UserRoleType.OPERATIONS, UserRoleType.SALES)
+  @ApiOperation({ summary: 'Reject or unqualify a prospect with reason (Admin/Ops)' })
+  async rejectLead(
+    @Param('id') id: string,
+    @CurrentUser() user: any,
+    @Body() body: { reason?: string }
+  ) {
+    return this.leadsService.rejectLead(id, user.id, body?.reason);
+  }
 }
+

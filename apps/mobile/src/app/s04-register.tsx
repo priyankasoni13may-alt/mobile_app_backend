@@ -12,6 +12,10 @@ import { useRouter } from 'expo-router';
 import { User, Mail, Phone, Lock, CheckSquare, Square } from 'lucide-react-native';
 import { apiClient } from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { PoweredByFooter } from '../components/PoweredByFooter';
+import { LumoraLogo } from '../components/LumoraLogo';
+import { LumoraGradientText } from '../components/LumoraGradientText';
+import { LumoraButton } from '../components/LumoraButton';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -87,8 +91,18 @@ export default function RegisterScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.headerBox}>
-        <Text style={styles.title}>Join Partner Network</Text>
-        <Text style={styles.subtitle}>Represent Lumora & Cypher Swift. Earn high incentives for qualified deals.</Text>
+        <LumoraLogo size={44} showText={false} />
+        <Text style={styles.brandTitle}>Lumora's Partners</Text>
+        <View style={styles.gradientLineBox}>
+          <LumoraGradientText
+            text="Business Development Global Network"
+            fontSize={14}
+            fontWeight="800"
+            height={22}
+            align="middle"
+          />
+        </View>
+        <Text style={styles.subtitle}>Join our global partner network. Connect qualified B2B deals and earn high incentives.</Text>
       </View>
 
       {errorMsg ? (
@@ -216,18 +230,12 @@ export default function RegisterScreen() {
         </TouchableOpacity>
 
         {/* Submit Button */}
-        <TouchableOpacity
-          activeOpacity={0.85}
+        <LumoraButton
+          title="Create Account & Verify"
           onPress={handleRegister}
-          disabled={loading}
-          style={styles.submitBtn}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <Text style={styles.submitBtnText}>Create Account & Verify</Text>
-          )}
-        </TouchableOpacity>
+          loading={loading}
+          style={{ marginTop: 8 }}
+        />
 
         <View style={styles.loginRow}>
           <Text style={styles.loginText}>Already registered? </Text>
@@ -235,51 +243,57 @@ export default function RegisterScreen() {
             <Text style={styles.loginLink}>Sign In</Text>
           </TouchableOpacity>
         </View>
+
+        <PoweredByFooter style={{ marginTop: 20 }} />
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
-  content: { padding: 24, paddingBottom: 60 },
-  headerBox: { marginBottom: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#FFFFFF' },
-  subtitle: { fontSize: 12, color: '#94A3B8', marginTop: 4, lineHeight: 18 },
-  errorBanner: { padding: 12, backgroundColor: 'rgba(239, 68, 68, 0.15)', borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.4)', borderRadius: 8, marginBottom: 16 },
-  errorText: { fontSize: 12, color: '#EF4444' },
-  form: { gap: 14 },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  content: { padding: 20, paddingTop: 30, paddingBottom: 60 },
+  headerBox: { marginBottom: 20, alignItems: 'center', gap: 6 },
+  brandTitle: { fontSize: 24, fontWeight: '900', color: '#0B0F26', letterSpacing: 0.5, textAlign: 'center', marginTop: 8 },
+  gradientLineBox: { width: '100%', alignItems: 'center' },
+  subtitle: { fontSize: 13, color: '#64748B', textAlign: 'center', marginTop: 4, lineHeight: 18 },
+  errorBanner: { padding: 12, backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FCA5A5', borderRadius: 10, marginBottom: 16 },
+  errorText: { fontSize: 12, color: '#DC2626', textAlign: 'center' },
+  form: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+    padding: 18,
+    gap: 14,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2
+  },
   inputGroup: { gap: 4 },
-  label: { fontSize: 11, fontWeight: '600', color: '#CBD5E1' },
+  label: { fontSize: 11, fontWeight: '700', color: '#334155' },
   inputBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0B1026',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#1E294B',
-    borderRadius: 10,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
     paddingHorizontal: 12,
-    minHeight: 52
+    minHeight: 50
   },
   input: {
     flex: 1,
-    color: '#FFFFFF',
-    fontSize: 15,
+    color: '#0B0F26',
+    fontSize: 14,
     marginLeft: 10,
     paddingVertical: 12
   },
   consentRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 4 },
-  consentText: { flex: 1, fontSize: 11, color: '#94A3B8', lineHeight: 16 },
-  submitBtn: {
-    backgroundColor: '#5B8EE2',
-    borderRadius: 10,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8
-  },
-  submitBtnText: { fontSize: 14, fontWeight: 'bold', color: '#FFFFFF' },
+  consentText: { flex: 1, fontSize: 11, color: '#64748B', lineHeight: 16 },
   loginRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 14 },
-  loginText: { fontSize: 12, color: '#94A3B8' },
-  loginLink: { fontSize: 12, color: '#5B8EE2', fontWeight: 'bold' }
+  loginText: { fontSize: 13, color: '#64748B' },
+  loginLink: { fontSize: 13, color: '#4F75FF', fontWeight: 'bold' }
 });

@@ -10,6 +10,8 @@ import {
 import { useRouter } from 'expo-router';
 import { FileCheck, Shield, CheckCircle2, ArrowRight } from 'lucide-react-native';
 import { apiClient } from '../services/api';
+import { LumoraButton } from '../components/LumoraButton';
+import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function AgreementScreen() {
   const router = useRouter();
@@ -68,36 +70,27 @@ export default function AgreementScreen() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          activeOpacity={0.85}
+        <LumoraButton
+          title="I Accept Terms & Code of Conduct"
           onPress={handleAccept}
-          disabled={loading}
-          style={styles.acceptBtn}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <>
-              <CheckCircle2 size={18} color="#FFFFFF" />
-              <Text style={styles.acceptBtnText}>I Accept Terms & Code of Conduct</Text>
-            </>
-          )}
-        </TouchableOpacity>
+          loading={loading}
+          icon={<CheckCircle2 size={18} color="#FFFFFF" />}
+          size="lg"
+        />
+        <PoweredByFooter style={{ marginTop: 16 }} />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19', padding: 20 },
+  container: { flex: 1, backgroundColor: '#FFFFFF', padding: 20 },
   header: { marginBottom: 16 },
-  title: { fontSize: 20, fontWeight: 'bold', color: '#FFFFFF' },
-  subtitle: { fontSize: 12, color: '#38BDF8', marginTop: 2, fontWeight: '600' },
-  scrollArea: { flex: 1, backgroundColor: '#0B1026', borderRadius: 12, borderWidth: 1, borderColor: '#1E294B', marginBottom: 16 },
-  scrollContent: { padding: 16, gap: 10 },
-  sectionHeading: { fontSize: 13, fontWeight: 'bold', color: '#5B8EE2', marginTop: 6 },
-  bodyText: { fontSize: 12, color: '#CBD5E1', lineHeight: 18 },
-  footer: { paddingBottom: 10 },
-  acceptBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#5B8EE2', height: 48, borderRadius: 10 },
-  acceptBtnText: { fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' }
+  title: { fontSize: 22, fontWeight: 'bold', color: '#0B0F26' },
+  subtitle: { fontSize: 13, color: '#4F75FF', marginTop: 3, fontWeight: '600' },
+  scrollArea: { flex: 1, backgroundColor: '#F8FAFC', borderRadius: 14, borderWidth: 1, borderColor: '#EEF2F6', marginBottom: 16 },
+  scrollContent: { padding: 18, gap: 10 },
+  sectionHeading: { fontSize: 13, fontWeight: 'bold', color: '#0B0F26', marginTop: 6 },
+  bodyText: { fontSize: 12, color: '#475569', lineHeight: 18 },
+  footer: { paddingBottom: 10 }
 });

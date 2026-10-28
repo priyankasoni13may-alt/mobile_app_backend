@@ -19,6 +19,8 @@ import {
   UserCheck,
   CheckCircle2
 } from 'lucide-react-native';
+import { LumoraButton } from '../components/LumoraButton';
+import { PoweredByFooter } from '../components/PoweredByFooter';
 
 interface ReviewItem {
   id: string;
@@ -63,7 +65,7 @@ export default function ClientReviewsScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Strict Ethical & Regulatory Disclaimer */}
       <View style={styles.complianceBox}>
-        <AlertTriangle size={18} color="#F59E0B" />
+        <AlertTriangle size={18} color="#D97706" />
         <View style={{ flex: 1 }}>
           <Text style={styles.complianceTitle}>Review Integrity & Anti-Gating Policy</Text>
           <Text style={styles.complianceText}>
@@ -83,10 +85,12 @@ export default function ClientReviewsScreen() {
           <Text style={styles.label}>Client Company Name</Text>
           <TextInput
             style={styles.input}
-            placeholder="e.g. Zenith Health Systems"
-            placeholderTextColor="#64748B"
+            placeholder="Enter client company name"
+            placeholderTextColor="#94A3B8"
             value={clientCompany}
             onChangeText={setClientCompany}
+            cursorColor="#4F75FF"
+            selectionColor="#4F75FF"
           />
         </View>
 
@@ -94,84 +98,98 @@ export default function ClientReviewsScreen() {
           <Text style={styles.label}>Signatory / Decision Maker Email</Text>
           <TextInput
             style={styles.input}
-            placeholder="decisionmaker@company.com"
-            placeholderTextColor="#64748B"
+            placeholder="Enter official email address"
+            placeholderTextColor="#94A3B8"
             keyboardType="email-address"
+            autoCapitalize="none"
             value={clientEmail}
             onChangeText={setClientEmail}
+            cursorColor="#4F75FF"
+            selectionColor="#4F75FF"
           />
         </View>
 
-        <TouchableOpacity
-          activeOpacity={0.85}
-          onPress={handleSendRequest}
-          style={styles.sendBtn}
-        >
-          <Send size={16} color="#FFFFFF" />
-          <Text style={styles.sendBtnText}>Dispatch Standard Feedback Survey</Text>
-        </TouchableOpacity>
+        <View style={{ marginTop: 6 }}>
+          <LumoraButton
+            title="Dispatch Standard Feedback Survey"
+            onPress={handleSendRequest}
+            icon={<Send size={16} color="#FFFFFF" />}
+            size="md"
+          />
+        </View>
       </View>
 
       {/* Past Reviews & Feedback History */}
       <Text style={styles.sectionHeader}>Client Feedback History</Text>
-      {reviews.map((rev) => (
-        <View key={rev.id} style={styles.reviewCard}>
-          <View style={styles.rowBetween}>
-            <Text style={styles.companyName}>{rev.clientCompany}</Text>
-            <View style={[styles.badge, { backgroundColor: rev.status === 'COMPLETED' ? '#10B98115' : '#5B8EE215' }]}>
-              <Text style={[styles.badgeText, { color: rev.status === 'COMPLETED' ? '#10B981' : '#5B8EE2' }]}>
-                {rev.status}
-              </Text>
-            </View>
-          </View>
-
-          <Text style={styles.contactName}>{rev.contactName} • {rev.service}</Text>
-
-          {rev.rating && (
-            <View style={styles.starsRow}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  size={14}
-                  color={star <= rev.rating! ? '#F59E0B' : '#64748B'}
-                  fill={star <= rev.rating! ? '#F59E0B' : 'transparent'}
-                />
-              ))}
-              <Text style={styles.dateText}>{rev.date}</Text>
-            </View>
-          )}
-
-          {rev.snippet && (
-            <Text style={styles.snippetText}>"{rev.snippet}"</Text>
-          )}
+      {reviews.length === 0 ? (
+        <View style={styles.emptyCard}>
+          <MessageSquare size={32} color="#94A3B8" />
+          <Text style={styles.emptyTitle}>No Client Reviews Yet</Text>
+          <Text style={styles.emptySub}>Client responses to dispatched feedback surveys will appear here.</Text>
         </View>
-      ))}
+      ) : (
+        reviews.map((rev) => (
+          <View key={rev.id} style={styles.reviewCard}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.companyName}>{rev.clientCompany}</Text>
+              <View style={[styles.badge, { backgroundColor: rev.status === 'COMPLETED' ? '#ECFDF5' : '#EFF6FF' }]}>
+                <Text style={[styles.badgeText, { color: rev.status === 'COMPLETED' ? '#059669' : '#4F75FF' }]}>
+                  {rev.status}
+                </Text>
+              </View>
+            </View>
+
+            <Text style={styles.contactName}>{rev.contactName} • {rev.service}</Text>
+
+            {rev.rating && (
+              <View style={styles.starsRow}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={14}
+                    color={star <= rev.rating! ? '#D97706' : '#CBD5E1'}
+                    fill={star <= rev.rating! ? '#D97706' : 'transparent'}
+                  />
+                ))}
+                <Text style={styles.dateText}>{rev.date}</Text>
+              </View>
+            )}
+
+            {rev.snippet && (
+              <Text style={styles.snippetText}>"{rev.snippet}"</Text>
+            )}
+          </View>
+        ))
+      )}
+
+      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16, paddingBottom: 60, gap: 14 },
-  complianceBox: { flexDirection: 'row', gap: 10, backgroundColor: '#F59E0B15', padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#F59E0B40' },
-  complianceTitle: { fontSize: 13, fontWeight: 'bold', color: '#FCD34D' },
-  complianceText: { fontSize: 11, color: '#CBD5E1', marginTop: 4, lineHeight: 16 },
-  card: { backgroundColor: '#0B1026', borderRadius: 14, borderWidth: 1, borderColor: '#1E294B', padding: 16, gap: 12 },
-  cardHeading: { fontSize: 15, fontWeight: 'bold', color: '#FFFFFF' },
-  hint: { fontSize: 12, color: '#94A3B8', lineHeight: 18 },
+  complianceBox: { flexDirection: 'row', gap: 10, backgroundColor: '#FFFBEB', padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#FDE68A' },
+  complianceTitle: { fontSize: 13, fontWeight: 'bold', color: '#B45309' },
+  complianceText: { fontSize: 12, color: '#92400E', marginTop: 4, lineHeight: 17 },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#EEF2F6', padding: 18, gap: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1 },
+  cardHeading: { fontSize: 16, fontWeight: 'bold', color: '#0B0F26' },
+  hint: { fontSize: 12, color: '#64748B', lineHeight: 18 },
   inputGroup: { gap: 6 },
-  label: { fontSize: 12, fontWeight: '600', color: '#CBD5E1' },
-  input: { backgroundColor: '#070B19', borderWidth: 1, borderColor: '#1E294B', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, color: '#FFFFFF', fontSize: 13 },
-  sendBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#5B8EE2', paddingVertical: 12, borderRadius: 8, marginTop: 4 },
-  sendBtnText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 13 },
-  sectionHeader: { fontSize: 14, fontWeight: 'bold', color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 },
-  reviewCard: { backgroundColor: '#0B1026', borderRadius: 12, borderWidth: 1, borderColor: '#1E294B', padding: 14, gap: 8 },
+  label: { fontSize: 12, fontWeight: '600', color: '#334155' },
+  input: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, color: '#0B0F26', fontSize: 13 },
+  sectionHeader: { fontSize: 13, fontWeight: 'bold', color: '#0B0F26', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 },
+  emptyCard: { backgroundColor: '#F8FAFC', borderRadius: 14, padding: 30, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#EEF2F6', gap: 8 },
+  emptyTitle: { fontSize: 15, fontWeight: 'bold', color: '#0B0F26' },
+  emptySub: { fontSize: 12, color: '#64748B', textAlign: 'center', maxWidth: 260 },
+  reviewCard: { backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: '#EEF2F6', padding: 16, gap: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  companyName: { fontSize: 15, fontWeight: '700', color: '#FFFFFF' },
-  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4 },
+  companyName: { fontSize: 15, fontWeight: '700', color: '#0B0F26' },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
   badgeText: { fontSize: 10, fontWeight: '800' },
-  contactName: { fontSize: 12, color: '#94A3B8' },
+  contactName: { fontSize: 12, color: '#64748B' },
   starsRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   dateText: { fontSize: 11, color: '#64748B', marginLeft: 8 },
-  snippetText: { fontSize: 12, color: '#CBD5E1', fontStyle: 'italic', lineHeight: 18 }
+  snippetText: { fontSize: 12, color: '#475569', fontStyle: 'italic', lineHeight: 18 }
 });

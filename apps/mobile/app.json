@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "Lumora + Cypher Swift Partner Network",
+    "name": "Lumora's Partners Business Development Global Network",
     "slug": "lumora-partner-network",
     "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "lumora",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0B1026"
+      "backgroundColor": "#FFFFFF"
     },
     "ios": {
       "supportsTablet": true,
@@ -19,7 +19,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0B1026"
+        "backgroundColor": "#FFFFFF"
       },
       "package": "com.cypherswift.lumora.partner"
     },

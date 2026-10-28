@@ -17,6 +17,8 @@ import {
   UserCheck
 } from 'lucide-react-native';
 import { useAuthStore } from '../store/authStore';
+import { LumoraButton } from '../components/LumoraButton';
+import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function ApplicationStatusScreen() {
   const router = useRouter();
@@ -36,11 +38,11 @@ export default function ApplicationStatusScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Status Card */}
       <View style={styles.statusHero}>
-        <View style={[styles.statusIconBox, { backgroundColor: isApproved ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)' }]}>
+        <View style={[styles.statusIconBox, { backgroundColor: isApproved ? '#ECFDF5' : '#FFFBEB' }]}>
           {isApproved ? (
             <CheckCircle2 size={36} color="#10B981" />
           ) : (
-            <Clock size={36} color="#F59E0B" />
+            <Clock size={36} color="#D97706" />
           )}
         </View>
 
@@ -62,7 +64,7 @@ export default function ApplicationStatusScreen() {
             {item.done ? (
               <CheckCircle2 size={18} color="#10B981" />
             ) : (
-              <Clock size={18} color="#F59E0B" />
+              <Clock size={18} color="#D97706" />
             )}
             <Text style={[styles.checkLabel, item.done && styles.checkLabelDone]}>
               {item.label}
@@ -78,40 +80,38 @@ export default function ApplicationStatusScreen() {
           onPress={() => router.push('/s10-training')}
           style={styles.trainingBtn}
         >
-          <GraduationCap size={18} color="#FFFFFF" />
+          <GraduationCap size={18} color="#0B0F26" />
           <Text style={styles.trainingBtnText}>Access Partner Training Hub</Text>
         </TouchableOpacity>
 
         {isApproved && (
-          <TouchableOpacity
-            activeOpacity={0.85}
+          <LumoraButton
+            title="Enter Home Dashboard"
             onPress={() => router.replace('/(tabs)')}
-            style={styles.dashboardBtn}
-          >
-            <Text style={styles.dashboardBtnText}>Enter Home Dashboard</Text>
-            <ArrowRight size={16} color="#FFFFFF" />
-          </TouchableOpacity>
+            icon={<ArrowRight size={16} color="#FFFFFF" />}
+            size="lg"
+          />
         )}
       </View>
+
+      <PoweredByFooter style={{ marginTop: 30, marginBottom: 10 }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 24, justifyContent: 'center' },
-  statusHero: { alignItems: 'center', backgroundColor: '#0B1026', borderRadius: 14, borderWidth: 1, borderColor: '#1E294B', padding: 24, marginBottom: 20 },
+  statusHero: { alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#EEF2F6', padding: 24, marginBottom: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
   statusIconBox: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-  statusTitle: { fontSize: 18, fontWeight: 'bold', color: '#FFFFFF', textAlign: 'center' },
-  statusSubtitle: { fontSize: 12, color: '#94A3B8', textAlign: 'center', marginTop: 8, lineHeight: 18 },
-  checklistTitle: { fontSize: 13, fontWeight: 'bold', color: '#CBD5E1', marginBottom: 10 },
-  checklistCard: { backgroundColor: '#0B1026', borderRadius: 12, borderWidth: 1, borderColor: '#1E294B', padding: 16, gap: 12, marginBottom: 24 },
+  statusTitle: { fontSize: 20, fontWeight: 'bold', color: '#0B0F26', textAlign: 'center' },
+  statusSubtitle: { fontSize: 13, color: '#64748B', textAlign: 'center', marginTop: 8, lineHeight: 18 },
+  checklistTitle: { fontSize: 13, fontWeight: 'bold', color: '#0B0F26', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
+  checklistCard: { backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: '#EEF2F6', padding: 18, gap: 14, marginBottom: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1 },
   checkItem: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  checkLabel: { fontSize: 12, color: '#94A3B8', flex: 1 },
-  checkLabelDone: { color: '#FFFFFF', fontWeight: '500' },
-  actions: { gap: 10 },
-  trainingBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#101735', height: 48, borderRadius: 10, borderWidth: 1, borderColor: '#1E294B' },
-  trainingBtnText: { fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' },
-  dashboardBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#5B8EE2', height: 48, borderRadius: 10 },
-  dashboardBtnText: { fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' }
+  checkLabel: { fontSize: 13, color: '#64748B', flex: 1 },
+  checkLabelDone: { color: '#0B0F26', fontWeight: '600' },
+  actions: { gap: 12 },
+  trainingBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#F1F5F9', height: 48, borderRadius: 24, borderWidth: 1, borderColor: '#E2E8F0' },
+  trainingBtnText: { fontSize: 13, fontWeight: 'bold', color: '#0B0F26' }
 });

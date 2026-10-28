@@ -14,22 +14,29 @@ export default function TabLayout() {
   const router = useRouter();
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#070B19' }}>
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <Tabs
         screenOptions={{
-          headerStyle: { backgroundColor: '#0B1026' },
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: { fontWeight: 'bold', fontSize: 17 },
+          headerStyle: { backgroundColor: '#FFFFFF' },
+          headerShadowVisible: false,
+          headerTintColor: '#0B0F26',
+          headerTitleStyle: { fontWeight: '800', fontSize: 17, color: '#0B0F26' },
           tabBarStyle: {
-            backgroundColor: '#0B1026',
-            borderTopColor: '#1E294B',
-            height: 60,
+            backgroundColor: '#FFFFFF',
+            borderTopColor: '#EEF2F6',
+            borderTopWidth: 1,
+            height: 62,
             paddingBottom: 8,
-            paddingTop: 6
+            paddingTop: 6,
+            shadowColor: '#0F172A',
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.04,
+            shadowRadius: 8,
+            elevation: 8,
           },
-          tabBarActiveTintColor: '#5B8EE2',
+          tabBarActiveTintColor: '#4F75FF',
           tabBarInactiveTintColor: '#94A3B8',
-          tabBarLabelStyle: { fontSize: 10, fontWeight: '600' }
+          tabBarLabelStyle: { fontSize: 10, fontWeight: '700' }
         }}
       >
         <Tabs.Screen
@@ -89,13 +96,13 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#5B8EE2',
+    backgroundColor: '#4F75FF',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#5B8EE2',
+    shadowColor: '#4F75FF',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
     elevation: 8,
     zIndex: 99
   }

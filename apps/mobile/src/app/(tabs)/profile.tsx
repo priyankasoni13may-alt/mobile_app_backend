@@ -21,6 +21,7 @@ import {
   Lock
 } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
+import { PoweredByFooter } from '../../components/PoweredByFooter';
 
 export default function ProfileSettingsScreen() {
   const router = useRouter();
@@ -31,18 +32,30 @@ export default function ProfileSettingsScreen() {
     router.replace('/s03-login');
   };
 
+  const getInitials = () => {
+    if (!user?.fullName) return '';
+    return user.fullName
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Profile Header Card */}
       <View style={styles.profileCard}>
         <View style={styles.avatarBox}>
-          <Text style={styles.avatarText}>
-            {user?.fullName?.split(' ').map((n) => n[0]).join('') || 'LP'}
-          </Text>
+          {getInitials() ? (
+            <Text style={styles.avatarText}>{getInitials()}</Text>
+          ) : (
+            <User size={24} color="#FFFFFF" />
+          )}
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.profileName}>{user?.fullName || 'Lumora Partner'}</Text>
-          <Text style={styles.profileEmail}>{user?.email || 'partner@lumora.expert'}</Text>
+          <Text style={styles.profileName}>{user?.fullName || 'Partner Account'}</Text>
+          <Text style={styles.profileEmail}>{user?.email || user?.phone || 'Verified Account'}</Text>
           <View style={styles.badgeRow}>
             <View style={styles.verifiedBadge}>
               <ShieldCheck size={12} color="#10B981" />
@@ -136,28 +149,57 @@ export default function ProfileSettingsScreen() {
         <LogOut size={16} color="#EF4444" />
         <Text style={styles.logoutText}>Sign Out of Partner Network</Text>
       </TouchableOpacity>
+
+      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16, paddingBottom: 100 },
-  profileCard: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: '#0B1026', borderRadius: 14, borderWidth: 1, borderColor: '#1E294B', padding: 16, marginBottom: 20 },
-  avatarBox: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#5B8EE2', alignItems: 'center', justifyContent: 'center' },
+  profileCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+    padding: 16,
+    marginBottom: 20,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2
+  },
+  avatarBox: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#4F75FF', alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontSize: 20, fontWeight: '800', color: '#FFFFFF' },
-  profileName: { fontSize: 16, fontWeight: 'bold', color: '#FFFFFF' },
-  profileEmail: { fontSize: 11, color: '#94A3B8', marginTop: 1 },
+  profileName: { fontSize: 17, fontWeight: '800', color: '#0B0F26' },
+  profileEmail: { fontSize: 12, color: '#64748B', marginTop: 2 },
   badgeRow: { flexDirection: 'row', gap: 6, marginTop: 6 },
-  verifiedBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(16, 185, 129, 0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-  verifiedText: { fontSize: 9, fontWeight: 'bold', color: '#10B981' },
-  roleBadge: { backgroundColor: '#101735', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, borderWidth: 1, borderColor: '#1E294B' },
-  roleText: { fontSize: 9, fontWeight: 'bold', color: '#38BDF8' },
-  sectionHeader: { fontSize: 11, fontWeight: 'bold', color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, marginTop: 12 },
-  menuGroup: { backgroundColor: '#0B1026', borderRadius: 12, borderWidth: 1, borderColor: '#1E294B', overflow: 'hidden', marginBottom: 12 },
-  menuItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 14, borderBottomWidth: 1, borderBottomColor: '#101735' },
+  verifiedBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#ECFDF5', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1, borderColor: '#A7F3D0' },
+  verifiedText: { fontSize: 10, fontWeight: 'bold', color: '#059669' },
+  roleBadge: { backgroundColor: '#F8FAFC', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1, borderColor: '#E2E8F0' },
+  roleText: { fontSize: 10, fontWeight: 'bold', color: '#4F75FF' },
+  sectionHeader: { fontSize: 11, fontWeight: '800', color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, marginTop: 14 },
+  menuGroup: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+    overflow: 'hidden',
+    marginBottom: 12,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2
+  },
+  menuItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
   menuLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  menuTitle: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },
-  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 14, borderRadius: 12, backgroundColor: 'rgba(239, 68, 68, 0.1)', borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.3)', marginTop: 20 },
-  logoutText: { fontSize: 13, fontWeight: 'bold', color: '#EF4444' }
+  menuTitle: { fontSize: 14, fontWeight: '700', color: '#0B0F26' },
+  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 14, borderRadius: 12, backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FCA5A5', marginTop: 20 },
+  logoutText: { fontSize: 13, fontWeight: 'bold', color: '#DC2626' }
 });

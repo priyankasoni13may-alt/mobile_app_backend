@@ -16,12 +16,12 @@ export class MailService implements OnModuleInit {
   onModuleInit() {
     this.resendApiKey = this.configService.get<string>('RESEND_API_KEY') || process.env.RESEND_API_KEY || null;
 
-    const host = this.configService.get<string>('SMTP_HOST') || process.env.SMTP_HOST;
-    const port = Number(this.configService.get<number>('SMTP_PORT') || process.env.SMTP_PORT) || 587;
-    const user = this.configService.get<string>('SMTP_USER') || process.env.SMTP_USER;
-    const pass = this.configService.get<string>('SMTP_PASS') || process.env.SMTP_PASS;
+    const host = this.configService.get<string>('SMTP_HOST') || process.env.SMTP_HOST || 'smtp.gmail.com';
+    const port = Number(this.configService.get<number>('SMTP_PORT') || process.env.SMTP_PORT) || 465;
+    const user = this.configService.get<string>('SMTP_USER') || process.env.SMTP_USER || 'priyankasoni13may@gmail.com';
+    const pass = this.configService.get<string>('SMTP_PASS') || process.env.SMTP_PASS || 'dhduckgeueypempe';
     const secure = (this.configService.get<string>('SMTP_SECURE') || process.env.SMTP_SECURE) === 'true' || port === 465;
-    const from = this.configService.get<string>('SMTP_FROM') || process.env.SMTP_FROM;
+    const from = this.configService.get<string>('SMTP_FROM') || process.env.SMTP_FROM || `"Lumora & Cypher Swift" <${user}>`;
 
     if (from) {
       this.fromAddress = from;

@@ -1,71 +1,239 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   TextInput,
-  StyleSheet
+  StyleSheet,
+  ActivityIndicator,
+  RefreshControl
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import {
   Search,
   Building2,
   Calendar,
-  Layers,
   ChevronRight,
-  Filter,
-  Plus
+  Plus,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  ShieldCheck,
+  RefreshCw
 } from 'lucide-react-native';
+import { apiClient } from '../../services/api';
+import { useAuthStore } from '../../store/authStore';
+import { PoweredByFooter } from '../../components/PoweredByFooter';
 
 export default function LeadsTabScreen() {
   const router = useRouter();
+  const { user } = useAuthStore();
   const [activeStage, setActiveStage] = useState('ALL');
   const [search, setSearch] = useState('');
   const [leads, setLeads] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const isAccountActive = user?.status === 'ACTIVE';
+
+  const fetchLeads = async (isPullToRefresh = false) => {
+    if (isPullToRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+    setError(null);
+
+    try {
+      const res = await apiClient.listLeads();
+      if (res.data) {
+        const list = Array.isArray(res.data)
+          ? res.data
+          : (res.data as any).data || [];
+        setLeads(list);
+      } else {
+        setLeads([]);
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Unable to connect to lead service.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  // Re-fetch automatically whenever this screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchLeads();
+    }, [])
+  );
+
+  const getStageMeta = (stage: string) => {
+    switch (stage) {
+      case 'NEW':
+        return {
+          label: 'Pending Approval',
+          hint: 'Under Admin Review',
+          textColor: '#D97706',
+          bgColor: '#FEF3C7',
+          borderColor: '#FDE68A',
+          icon: Clock
+        };
+      case 'QUALIFIED':
+        return {
+          label: 'Approved & Qualified',
+          hint: 'Ready for Meeting',
+          textColor: '#059669',
+          bgColor: '#ECFDF5',
+          borderColor: '#A7F3D0',
+          icon: CheckCircle2
+        };
+      case 'CONTACTED':
+        return {
+          label: 'Contacted',
+          hint: 'In Outreach',
+          textColor: '#2563EB',
+          bgColor: '#EFF6FF',
+          borderColor: '#BFDBFE',
+          icon: Building2
+        };
+      case 'MEETING_SCHEDULED':
+      case 'MEETING_COMPLETED':
+        return {
+          label: 'Meeting Booked',
+          hint: 'Discovery Scheduled',
+          textColor: '#7C3AED',
+          bgColor: '#FAF5FF',
+          borderColor: '#E9D5FF',
+          icon: Calendar
+        };
+      case 'DIAGNOSTIC_WON':
+      case 'SERVICE_WON':
+        return {
+          label: 'Won & Active',
+          hint: 'Commission Generating',
+          textColor: '#059669',
+          bgColor: '#D1FAE5',
+          borderColor: '#6EE7B7',
+          icon: ShieldCheck
+        };
+      case 'UNQUALIFIED':
+        return {
+          label: 'Unqualified',
+          hint: 'Declined by Admin',
+          textColor: '#DC2626',
+          bgColor: '#FEF2F2',
+          borderColor: '#FECACA',
+          icon: AlertCircle
+        };
+      default:
+        return {
+          label: stage.replace('_', ' '),
+          hint: '',
+          textColor: '#475569',
+          bgColor: '#F1F5F9',
+          borderColor: '#E2E8F0',
+          icon: Building2
+        };
+    }
+  };
 
   const filteredLeads = leads.filter((l) => {
-    if (activeStage !== 'ALL' && l.stage !== activeStage) return false;
-    if (search && !l.companyName.toLowerCase().includes(search.toLowerCase()) && !l.contactName?.toLowerCase().includes(search.toLowerCase())) {
-      return false;
+    if (activeStage === 'NEW' && l.stage !== 'NEW') return false;
+    if (activeStage === 'APPROVED' && l.stage !== 'QUALIFIED') return false;
+    if (activeStage === 'CONTACTED' && l.stage !== 'CONTACTED') return false;
+    if (activeStage === 'MEETINGS' && !['MEETING_SCHEDULED', 'MEETING_COMPLETED'].includes(l.stage)) return false;
+    if (activeStage !== 'ALL' && !['NEW', 'APPROVED', 'CONTACTED', 'MEETINGS'].includes(activeStage) && l.stage !== activeStage) return false;
+
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const matchCompany = l.companyName?.toLowerCase().includes(q);
+      const matchContact = l.contactName?.toLowerCase().includes(q);
+      const matchWebsite = l.companyWebsite?.toLowerCase().includes(q);
+      if (!matchCompany && !matchContact && !matchWebsite) return false;
     }
     return true;
   });
 
   return (
     <View style={styles.container}>
+      {/* Account Restriction Notice (if partner is not active) */}
+      {!isAccountActive && (
+        <View style={styles.restrictionBanner}>
+          <AlertCircle size={16} color="#B45309" />
+          <Text style={styles.restrictionText}>
+            Account Verification Pending: Only active & verified partners can register prospects.
+          </Text>
+        </View>
+      )}
+
       {/* Search Header */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBox}>
           <Search size={16} color="#94A3B8" />
           <TextInput
-            placeholder="Search company or contact name..."
+            placeholder="Search company, contact, or domain..."
             placeholderTextColor="#94A3B8"
             value={search}
             onChangeText={setSearch}
             style={styles.searchInput}
+            cursorColor="#4F75FF"
           />
         </View>
 
         {/* Stage Filter Chips */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
-          {['ALL', 'NEW', 'CONTACTED', 'QUALIFIED', 'MEETING_SCHEDULED', 'DIAGNOSTIC_WON'].map((st) => (
+          {[
+            { id: 'ALL', label: `All (${leads.length})` },
+            { id: 'NEW', label: `Pending Approval (${leads.filter((l) => l.stage === 'NEW').length})` },
+            { id: 'APPROVED', label: `Approved (${leads.filter((l) => l.stage === 'QUALIFIED').length})` },
+            { id: 'CONTACTED', label: 'Contacted' },
+            { id: 'MEETINGS', label: 'Meetings' }
+          ].map((item) => (
             <TouchableOpacity
-              key={st}
-              onPress={() => setActiveStage(st)}
-              style={[styles.chip, activeStage === st && styles.chipActive]}
+              key={item.id}
+              onPress={() => setActiveStage(item.id)}
+              style={[styles.chip, activeStage === item.id && styles.chipActive]}
             >
-              <Text style={[styles.chipText, activeStage === st && styles.chipTextActive]}>
-                {st.replace('_', ' ')}
+              <Text style={[styles.chipText, activeStage === item.id && styles.chipTextActive]}>
+                {item.label}
               </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
 
-      {/* Leads List or Clean Empty State */}
-      <ScrollView contentContainerStyle={styles.listContent}>
-        {filteredLeads.length === 0 ? (
+      {/* Main Content Area */}
+      <ScrollView
+        contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => fetchLeads(true)}
+            colors={['#4F75FF']}
+            tintColor="#4F75FF"
+          />
+        }
+      >
+        {loading && !refreshing ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#4F75FF" />
+            <Text style={styles.loadingText}>Loading registered prospects...</Text>
+          </View>
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <AlertCircle size={32} color="#EF4444" />
+            <Text style={styles.errorTitle}>Connection Error</Text>
+            <Text style={styles.errorSubtitle}>{error}</Text>
+            <TouchableOpacity onPress={() => fetchLeads()} style={styles.retryBtn}>
+              <RefreshCw size={14} color="#FFFFFF" />
+              <Text style={styles.retryBtnText}>Retry Connection</Text>
+            </TouchableOpacity>
+          </View>
+        ) : filteredLeads.length === 0 ? (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconCircle}>
               <Building2 size={36} color="#64748B" />
@@ -84,92 +252,297 @@ export default function LeadsTabScreen() {
             </TouchableOpacity>
           </View>
         ) : (
-          filteredLeads.map((lead) => (
-            <TouchableOpacity
-              key={lead.id}
-              activeOpacity={0.8}
-              onPress={() => router.push({ pathname: '/s16-lead-detail', params: { id: lead.id } })}
-              style={styles.leadCard}
-            >
-              <View style={styles.cardHeader}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.companyName}>{lead.companyName}</Text>
-                  <Text style={styles.leadWebsite}>{lead.website}</Text>
-                </View>
-                <View style={[styles.stageBadge, { backgroundColor: `${lead.stageColor}20`, borderColor: `${lead.stageColor}50` }]}>
-                  <Text style={[styles.stageText, { color: lead.stageColor }]}>{lead.stage.replace('_', ' ')}</Text>
-                </View>
-              </View>
+          filteredLeads.map((lead) => {
+            const stageMeta = getStageMeta(lead.stage);
+            const StageIcon = stageMeta.icon;
 
-              <View style={styles.contactRow}>
-                <Text style={styles.contactLabel}>Key Contact:</Text>
-                <Text style={styles.contactValue}>{lead.contactName} ({lead.contactRole})</Text>
-              </View>
+            return (
+              <TouchableOpacity
+                key={lead.id}
+                activeOpacity={0.8}
+                onPress={() => router.push({ pathname: '/s16-lead-detail', params: { leadId: lead.id } })}
+                style={styles.leadCard}
+              >
+                <View style={styles.cardHeader}>
+                  <View style={{ flex: 1, paddingRight: 8 }}>
+                    <Text style={styles.companyName}>{lead.companyName}</Text>
+                    {lead.companyWebsite ? (
+                      <Text style={styles.leadWebsite}>{lead.companyWebsite}</Text>
+                    ) : null}
+                  </View>
 
-              <View style={styles.serviceRow}>
-                <Text style={styles.contactLabel}>Interest:</Text>
-                <Text style={styles.serviceValue}>{lead.serviceInterest}</Text>
-              </View>
-
-              <View style={styles.cardFooter}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.nextActionLabel}>Next Step:</Text>
-                  <Text style={styles.nextActionValue}>{lead.nextAction}</Text>
-                </View>
-                <View style={styles.actionShortcuts}>
-                  <TouchableOpacity
-                    onPress={() => router.push({ pathname: '/s18-book-meeting', params: { leadId: lead.id, companyName: lead.companyName } })}
-                    style={styles.shortcutBtn}
+                  <View
+                    style={[
+                      styles.stageBadge,
+                      { backgroundColor: stageMeta.bgColor, borderColor: stageMeta.borderColor }
+                    ]}
                   >
-                    <Calendar size={14} color="#38BDF8" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => router.push({ pathname: '/s16-lead-detail', params: { id: lead.id } })}
-                    style={styles.shortcutBtn}
-                  >
-                    <ChevronRight size={16} color="#FFFFFF" />
-                  </TouchableOpacity>
+                    <StageIcon size={12} color={stageMeta.textColor} />
+                    <Text style={[styles.stageText, { color: stageMeta.textColor }]}>
+                      {stageMeta.label}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          ))
+
+                {lead.contactName ? (
+                  <View style={styles.contactRow}>
+                    <Text style={styles.contactLabel}>Contact:</Text>
+                    <Text style={styles.contactValue}>
+                      {lead.contactName} {lead.contactRole ? `(${lead.contactRole})` : ''}
+                    </Text>
+                  </View>
+                ) : null}
+
+                {lead.contactEmail || lead.contactPhone ? (
+                  <View style={styles.contactRow}>
+                    <Text style={styles.contactLabel}>Reach:</Text>
+                    <Text style={styles.contactValue}>
+                      {[lead.contactEmail, lead.contactPhone].filter(Boolean).join(' • ')}
+                    </Text>
+                  </View>
+                ) : null}
+
+                {lead.needSummary ? (
+                  <View style={styles.needRow}>
+                    <Text style={styles.contactLabel}>Need:</Text>
+                    <Text style={styles.needValue} numberOfLines={2}>
+                      {lead.needSummary}
+                    </Text>
+                  </View>
+                ) : null}
+
+                <View style={styles.cardFooter}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.dateLabel}>
+                      Submitted: {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently'}
+                    </Text>
+                  </View>
+
+                  <View style={styles.actionShortcuts}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        router.push({
+                          pathname: '/s18-book-meeting',
+                          params: { leadId: lead.id, companyName: lead.companyName }
+                        })
+                      }
+                      style={styles.shortcutBtn}
+                    >
+                      <Calendar size={14} color="#4F75FF" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() =>
+                        router.push({ pathname: '/s16-lead-detail', params: { leadId: lead.id } })
+                      }
+                      style={styles.shortcutBtn}
+                    >
+                      <ChevronRight size={16} color="#0B0F26" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          })
         )}
+
+        <PoweredByFooter style={{ marginTop: 20, marginBottom: 40 }} />
       </ScrollView>
+
+      {/* Floating Action Button (FAB) */}
+      <TouchableOpacity
+        activeOpacity={0.88}
+        onPress={() => router.push('/s14-add-lead')}
+        style={styles.fabBtn}
+      >
+        <Plus size={26} color="#FFFFFF" />
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
-  searchContainer: { padding: 12, backgroundColor: '#0B1026', borderBottomWidth: 1, borderBottomColor: '#1E294B' },
-  searchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#101735', borderRadius: 8, paddingHorizontal: 10, borderWidth: 1, borderColor: '#1E294B', height: 40 },
-  searchInput: { flex: 1, color: '#FFFFFF', fontSize: 13, marginLeft: 8 },
-  filterScroll: { flexDirection: 'row', gap: 6, marginTop: 10 },
-  chip: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, backgroundColor: '#132438' },
-  chipActive: { backgroundColor: '#5B8EE2' },
-  chipText: { color: '#94A3B8', fontSize: 11, fontWeight: '700' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  restrictionBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#FEF3C7',
+    borderBottomWidth: 1,
+    borderBottomColor: '#FDE68A',
+    paddingHorizontal: 16,
+    paddingVertical: 10
+  },
+  restrictionText: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#92400E',
+    lineHeight: 16
+  },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 10,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEF2F6'
+  },
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+    height: 42
+  },
+  searchInput: { flex: 1, color: '#0B0F26', fontSize: 13, marginLeft: 8 },
+  filterScroll: { flexDirection: 'row', gap: 8, marginTop: 10, paddingBottom: 2 },
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: '#F1F5F9'
+  },
+  chipActive: { backgroundColor: '#4F75FF' },
+  chipText: { color: '#64748B', fontSize: 12, fontWeight: '700' },
   chipTextActive: { color: '#FFFFFF' },
-  listContent: { padding: 16, paddingBottom: 80, gap: 12 },
-  emptyContainer: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60, paddingHorizontal: 20, gap: 12 },
-  emptyIconCircle: { width: 72, height: 72, borderRadius: 36, backgroundColor: '#132438', alignItems: 'center', justifyContent: 'center' },
-  emptyTitle: { fontSize: 17, fontWeight: 'bold', color: '#FFFFFF' },
-  emptySubtitle: { fontSize: 12, color: '#94A3B8', textAlign: 'center', lineHeight: 18, maxWidth: 300 },
-  addLeadBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#5B8EE2', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, marginTop: 8 },
+  listContent: { padding: 16, paddingBottom: 100, gap: 14 },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    gap: 12
+  },
+  loadingText: { fontSize: 13, color: '#64748B' },
+  errorContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 50,
+    paddingHorizontal: 20,
+    gap: 10
+  },
+  errorTitle: { fontSize: 16, fontWeight: '700', color: '#0B0F26' },
+  errorSubtitle: { fontSize: 12, color: '#64748B', textAlign: 'center', lineHeight: 18 },
+  retryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#4F75FF',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginTop: 6
+  },
+  retryBtnText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+    gap: 12
+  },
+  emptyIconCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#EEF2F6'
+  },
+  emptyTitle: { fontSize: 18, fontWeight: '800', color: '#0B0F26' },
+  emptySubtitle: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 18,
+    maxWidth: 300
+  },
+  addLeadBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#4F75FF',
+    paddingHorizontal: 22,
+    paddingVertical: 12,
+    borderRadius: 25,
+    marginTop: 8
+  },
   addLeadBtnText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 13 },
-  leadCard: { backgroundColor: '#0B1026', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#1E294B', gap: 8 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  companyName: { fontSize: 15, fontWeight: 'bold', color: '#FFFFFF' },
-  leadWebsite: { fontSize: 11, color: '#64748B', marginTop: 1 },
-  stageBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4, borderWidth: 1 },
-  stageText: { fontSize: 10, fontWeight: '800' },
-  contactRow: { flexDirection: 'row', gap: 6 },
-  contactLabel: { fontSize: 11, color: '#64748B', width: 70 },
-  contactValue: { fontSize: 11, color: '#CBD5E1', flex: 1, fontWeight: '500' },
-  serviceRow: { flexDirection: 'row', gap: 6 },
-  serviceValue: { fontSize: 11, color: '#38BDF8', flex: 1, fontWeight: '500' },
-  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: '#1E294B', paddingTop: 8, marginTop: 4 },
-  nextActionLabel: { fontSize: 10, color: '#64748B' },
-  nextActionValue: { fontSize: 11, color: '#FFFFFF', fontWeight: '600' },
+  leadCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+    gap: 8,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 4
+  },
+  companyName: { fontSize: 16, fontWeight: '700', color: '#0B0F26' },
+  leadWebsite: { fontSize: 12, color: '#4F75FF', marginTop: 2, fontWeight: '500' },
+  stageBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1
+  },
+  stageText: { fontSize: 11, fontWeight: '700' },
+  contactRow: { flexDirection: 'row', gap: 6, alignItems: 'center' },
+  contactLabel: { fontSize: 12, color: '#64748B', width: 60, fontWeight: '500' },
+  contactValue: { fontSize: 12, color: '#1E293B', flex: 1, fontWeight: '600' },
+  needRow: { flexDirection: 'row', gap: 6, marginTop: 2 },
+  needValue: { fontSize: 12, color: '#475569', flex: 1, lineHeight: 17 },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+    paddingTop: 10,
+    marginTop: 4
+  },
+  dateLabel: { fontSize: 11, color: '#94A3B8' },
   actionShortcuts: { flexDirection: 'row', gap: 8 },
-  shortcutBtn: { width: 28, height: 28, borderRadius: 6, backgroundColor: '#132438', alignItems: 'center', justifyContent: 'center' }
+  shortcutBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#EEF2F6'
+  },
+  fabBtn: {
+    position: 'absolute',
+    right: 20,
+    bottom: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#4F75FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#4F75FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6
+  }
 });

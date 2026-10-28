@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   FileSpreadsheet
 } from 'lucide-react-native';
+import { PoweredByFooter } from '../../components/PoweredByFooter';
 
 export default function EarningsTabScreen() {
   const router = useRouter();
@@ -55,7 +56,9 @@ export default function EarningsTabScreen() {
         style={styles.ledgerButton}
       >
         <View style={styles.ledgerBtnLeft}>
-          <FileSpreadsheet size={18} color="#5B8EE2" />
+          <View style={styles.ledgerIconCircle}>
+            <FileSpreadsheet size={18} color="#4F75FF" />
+          </View>
           <View>
             <Text style={styles.ledgerBtnTitle}>View Immutable Transaction Ledger</Text>
             <Text style={styles.ledgerBtnSub}>Append-only audit trail with policy versions</Text>
@@ -69,8 +72,8 @@ export default function EarningsTabScreen() {
         <Text style={styles.sectionHeading}>Incentive Structure Overview</Text>
 
         <View style={styles.tierItem}>
-          <View style={styles.tierIconBox}>
-            <Banknote size={16} color="#5B8EE2" />
+          <View style={[styles.tierIconBox, { backgroundColor: '#EFF6FF' }]}>
+            <Banknote size={16} color="#4F75FF" />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.tierTitle}>Productized Growth Diagnostic</Text>
@@ -80,8 +83,8 @@ export default function EarningsTabScreen() {
         </View>
 
         <View style={styles.tierItem}>
-          <View style={[styles.tierIconBox, { backgroundColor: '#38BDF820' }]}>
-            <TrendingUp size={16} color="#38BDF8" />
+          <View style={[styles.tierIconBox, { backgroundColor: '#FDF4FF' }]}>
+            <TrendingUp size={16} color="#EC4899" />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.tierTitle}>Core Custom Software / Retainer</Text>
@@ -91,8 +94,8 @@ export default function EarningsTabScreen() {
         </View>
 
         <View style={styles.tierItem}>
-          <View style={[styles.tierIconBox, { backgroundColor: '#A855F720' }]}>
-            <Trophy size={16} color="#A855F7" />
+          <View style={[styles.tierIconBox, { backgroundColor: '#FAF5FF' }]}>
+            <Trophy size={16} color="#8B5CF6" />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.tierTitle}>Annual Milestone Bonus</Text>
@@ -105,7 +108,7 @@ export default function EarningsTabScreen() {
       {/* Annual Bonus Progress Card */}
       <View style={styles.bonusCard}>
         <View style={styles.bonusHeader}>
-          <Trophy size={18} color="#F59E0B" />
+          <Trophy size={18} color="#D97706" />
           <Text style={styles.bonusTitle}>2026 Annual Bonus Progress</Text>
         </View>
         <Text style={styles.bonusDescription}>
@@ -120,42 +123,45 @@ export default function EarningsTabScreen() {
           <View style={[styles.bonusProgressFill, { width: '0%' }]} />
         </View>
       </View>
+
+      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
   content: { padding: 16, paddingBottom: 80, gap: 14 },
-  balanceCard: { backgroundColor: '#0B1026', borderRadius: 14, padding: 18, borderWidth: 1, borderColor: '#1E294B', gap: 6 },
-  balanceLabel: { fontSize: 11, color: '#94A3B8', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 0.5 },
-  balanceValue: { fontSize: 32, fontWeight: '800', color: '#FFFFFF' },
+  balanceCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 20, borderWidth: 1, borderColor: '#EEF2F6', gap: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  balanceLabel: { fontSize: 11, color: '#64748B', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 0.5 },
+  balanceValue: { fontSize: 34, fontWeight: '800', color: '#0B0F26' },
   balanceSub: { fontSize: 12, color: '#64748B' },
-  payoutStatusRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#132438', borderRadius: 10, padding: 12, marginTop: 10 },
+  payoutStatusRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#F8FAFC', borderRadius: 12, padding: 12, marginTop: 12, borderWidth: 1, borderColor: '#EEF2F6' },
   statusCol: { flex: 1, alignItems: 'center' },
-  statusColLabel: { fontSize: 10, color: '#94A3B8', marginBottom: 2 },
-  statusColValue: { fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' },
-  statusColValueAmber: { fontSize: 13, fontWeight: 'bold', color: '#F59E0B' },
+  statusColLabel: { fontSize: 10, color: '#64748B', marginBottom: 2 },
+  statusColValue: { fontSize: 13, fontWeight: 'bold', color: '#0B0F26' },
+  statusColValueAmber: { fontSize: 13, fontWeight: 'bold', color: '#D97706' },
   statusColValueGreen: { fontSize: 13, fontWeight: 'bold', color: '#10B981' },
-  divider: { width: 1, backgroundColor: '#1E294B' },
-  ledgerButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#0B1026', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#1E294B' },
+  divider: { width: 1, backgroundColor: '#EEF2F6' },
+  ledgerButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', borderRadius: 14, padding: 14, borderWidth: 1, borderColor: '#EEF2F6', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1 },
   ledgerBtnLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  ledgerBtnTitle: { fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' },
-  ledgerBtnSub: { fontSize: 11, color: '#94A3B8', marginTop: 1 },
-  breakdownCard: { backgroundColor: '#0B1026', borderRadius: 14, padding: 16, borderWidth: 1, borderColor: '#1E294B', gap: 12 },
-  sectionHeading: { fontSize: 13, fontWeight: 'bold', color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: 0.5 },
+  ledgerIconCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#EFF6FF', alignItems: 'center', justifyContent: 'center' },
+  ledgerBtnTitle: { fontSize: 13, fontWeight: 'bold', color: '#0B0F26' },
+  ledgerBtnSub: { fontSize: 11, color: '#64748B', marginTop: 1 },
+  breakdownCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 18, borderWidth: 1, borderColor: '#EEF2F6', gap: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1 },
+  sectionHeading: { fontSize: 12, fontWeight: 'bold', color: '#0B0F26', textTransform: 'uppercase', letterSpacing: 0.5 },
   tierItem: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 4 },
-  tierIconBox: { width: 34, height: 34, borderRadius: 8, backgroundColor: '#5B8EE215', alignItems: 'center', justifyContent: 'center' },
-  tierTitle: { fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' },
-  tierSub: { fontSize: 11, color: '#94A3B8', marginTop: 1 },
-  tierEarned: { fontSize: 14, fontWeight: 'bold', color: '#FFFFFF' },
-  bonusCard: { backgroundColor: '#0B1026', borderRadius: 14, padding: 16, borderWidth: 1, borderColor: '#F59E0B40', gap: 8 },
+  tierIconBox: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  tierTitle: { fontSize: 13, fontWeight: 'bold', color: '#0B0F26' },
+  tierSub: { fontSize: 11, color: '#64748B', marginTop: 1 },
+  tierEarned: { fontSize: 14, fontWeight: 'bold', color: '#0B0F26' },
+  bonusCard: { backgroundColor: '#FFFFFF', borderRadius: 16, padding: 18, borderWidth: 1, borderColor: '#FEF3C7', gap: 8, shadowColor: '#D97706', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 1 },
   bonusHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  bonusTitle: { fontSize: 14, fontWeight: 'bold', color: '#F59E0B' },
-  bonusDescription: { fontSize: 11, color: '#94A3B8', lineHeight: 16 },
-  bonusProgressRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  bonusProgressCount: { fontSize: 12, fontWeight: 'bold', color: '#FFFFFF' },
+  bonusTitle: { fontSize: 14, fontWeight: 'bold', color: '#D97706' },
+  bonusDescription: { fontSize: 12, color: '#475569', lineHeight: 18 },
+  bonusProgressRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 },
+  bonusProgressCount: { fontSize: 12, fontWeight: 'bold', color: '#0B0F26' },
   bonusProgressLabel: { fontSize: 11, color: '#64748B' },
-  bonusProgressBar: { height: 6, backgroundColor: '#132438', borderRadius: 3, overflow: 'hidden' },
-  bonusProgressFill: { height: '100%', backgroundColor: '#F59E0B', borderRadius: 3 }
+  bonusProgressBar: { height: 6, backgroundColor: '#F1F5F9', borderRadius: 3, overflow: 'hidden' },
+  bonusProgressFill: { height: '100%', backgroundColor: '#4F75FF', borderRadius: 3 }
 });

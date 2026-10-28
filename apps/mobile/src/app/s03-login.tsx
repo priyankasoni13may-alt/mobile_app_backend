@@ -6,13 +6,16 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  ActivityIndicator,
-  Alert
+  ActivityIndicator
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Lock, Mail, Eye, EyeOff, X } from 'lucide-react-native';
 import { apiClient } from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { PoweredByFooter } from '../components/PoweredByFooter';
+import { LumoraLogo } from '../components/LumoraLogo';
+import { LumoraGradientText } from '../components/LumoraGradientText';
+import { LumoraButton } from '../components/LumoraButton';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -71,7 +74,17 @@ export default function LoginScreen() {
     >
       <View style={styles.content}>
         <View style={styles.headerBox}>
-          <Text style={styles.title}>Welcome Back</Text>
+          <LumoraLogo size={44} showText={false} />
+          <Text style={styles.brandTitle}>Lumora's Partners</Text>
+          <View style={styles.gradientLineBox}>
+            <LumoraGradientText
+              text="Business Development Global Network"
+              fontSize={14}
+              fontWeight="800"
+              height={22}
+              align="middle"
+            />
+          </View>
           <Text style={styles.subtitle}>Sign in to access your leads, meetings, and incentives</Text>
         </View>
 
@@ -83,25 +96,25 @@ export default function LoginScreen() {
         ) : null}
 
         {/* Input Fields */}
-        <View style={styles.form}>
+        <View style={styles.formCard}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Email or Phone Number</Text>
             <View style={styles.inputBox}>
-              <Mail size={16} color="#94A3B8" />
+              <Mail size={16} color="#64748B" />
               <TextInput
                 ref={identifierRef}
                 value={identifier}
                 onChangeText={setIdentifier}
                 placeholder="Enter your phone or email"
-                placeholderTextColor="#64748B"
+                placeholderTextColor="#94A3B8"
                 autoCapitalize="none"
                 autoCorrect={false}
                 autoComplete="off"
                 importantForAutofill="no"
                 style={styles.input}
                 underlineColorAndroid="transparent"
-                cursorColor="#5B8EE2"
-                selectionColor="#5B8EE2"
+                cursorColor="#4F75FF"
+                selectionColor="#4F75FF"
                 returnKeyType="next"
                 onSubmitEditing={() => passwordRef.current?.focus()}
               />
@@ -133,13 +146,13 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
             <View style={styles.inputBox}>
-              <Lock size={16} color="#94A3B8" />
+              <Lock size={16} color="#64748B" />
               <TextInput
                 ref={passwordRef}
                 value={password}
                 onChangeText={setPassword}
                 placeholder="Enter password"
-                placeholderTextColor="#64748B"
+                placeholderTextColor="#94A3B8"
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -147,29 +160,23 @@ export default function LoginScreen() {
                 importantForAutofill="no"
                 style={styles.input}
                 underlineColorAndroid="transparent"
-                cursorColor="#5B8EE2"
-                selectionColor="#5B8EE2"
+                cursorColor="#4F75FF"
+                selectionColor="#4F75FF"
                 returnKeyType="done"
                 onSubmitEditing={handleLogin}
               />
               <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
-                {showPassword ? <EyeOff size={16} color="#94A3B8" /> : <Eye size={16} color="#94A3B8" />}
+                {showPassword ? <EyeOff size={16} color="#64748B" /> : <Eye size={16} color="#64748B" />}
               </TouchableOpacity>
             </View>
           </View>
 
-          <TouchableOpacity
-            activeOpacity={0.85}
+          <LumoraButton
+            title="Sign In"
             onPress={handleLogin}
-            disabled={loading}
-            style={styles.submitBtn}
-          >
-            {loading ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <Text style={styles.submitBtnText}>Sign In</Text>
-            )}
-          </TouchableOpacity>
+            loading={loading}
+            style={{ marginTop: 8 }}
+          />
 
           <View style={styles.registerRow}>
             <Text style={styles.registerText}>Don't have a partner account? </Text>
@@ -178,55 +185,61 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        <PoweredByFooter style={{ marginTop: 24 }} />
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   scrollContent: { flexGrow: 1 },
-  content: { padding: 24, paddingTop: 40, paddingBottom: 60 },
-  headerBox: { marginBottom: 24, marginTop: 10 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#FFFFFF' },
-  subtitle: { fontSize: 13, color: '#94A3B8', marginTop: 4 },
-  errorBanner: { padding: 12, backgroundColor: 'rgba(239, 68, 68, 0.15)', borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.4)', borderRadius: 8, marginBottom: 16 },
-  errorText: { fontSize: 12, color: '#EF4444', fontWeight: '500' },
-  form: { gap: 16 },
+  content: { padding: 24, paddingTop: 30, paddingBottom: 60 },
+  headerBox: { marginBottom: 24, alignItems: 'center', gap: 6 },
+  brandTitle: { fontSize: 24, fontWeight: '900', color: '#0B0F26', letterSpacing: 0.5, textAlign: 'center', marginTop: 8 },
+  gradientLineBox: { width: '100%', alignItems: 'center' },
+  subtitle: { fontSize: 13, color: '#64748B', textAlign: 'center', marginTop: 4 },
+  errorBanner: { padding: 12, backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FCA5A5', borderRadius: 10, marginBottom: 16 },
+  errorText: { fontSize: 12, color: '#DC2626', fontWeight: '500', textAlign: 'center' },
+  formCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+    padding: 18,
+    gap: 16,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2
+  },
   inputGroup: { gap: 6 },
   passwordLabelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  label: { fontSize: 12, fontWeight: '600', color: '#CBD5E1' },
-  forgotLink: { fontSize: 11, color: '#38BDF8', fontWeight: '600' },
+  label: { fontSize: 12, fontWeight: '700', color: '#334155' },
+  forgotLink: { fontSize: 11, color: '#4F75FF', fontWeight: '700' },
   inputBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0B1026',
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#1E294B',
-    borderRadius: 10,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
     paddingHorizontal: 12,
-    minHeight: 52
+    minHeight: 50
   },
   input: {
     flex: 1,
-    color: '#FFFFFF',
-    fontSize: 15,
+    color: '#0B0F26',
+    fontSize: 14,
     marginLeft: 10,
     paddingVertical: 12,
     paddingHorizontal: 0
   },
-  submitBtn: {
-    backgroundColor: '#5B8EE2',
-    borderRadius: 10,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8
-  },
-  submitBtnText: { fontSize: 14, fontWeight: 'bold', color: '#FFFFFF' },
   clearBtn: { padding: 8 },
   eyeBtn: { padding: 8 },
-  registerRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
-  registerText: { fontSize: 12, color: '#94A3B8' },
-  registerLink: { fontSize: 12, color: '#5B8EE2', fontWeight: 'bold' }
+  registerRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 14 },
+  registerText: { fontSize: 13, color: '#64748B' },
+  registerLink: { fontSize: 13, color: '#4F75FF', fontWeight: 'bold' }
 });

@@ -214,6 +214,23 @@ export class LeadsService {
   }
 
   async create(user: any, data: any) {
+    // 1. Strict Eligibility Restrictions
+    if (user.status !== 'ACTIVE') {
+      throw new ForbiddenException('Your account is not active. Only active and verified users can register prospects.');
+    }
+
+    const allowedRoles = [UserRoleType.PARTNER, UserRoleType.SALES, UserRoleType.OPERATIONS, UserRoleType.SUPER_ADMIN];
+    const hasAllowedRole = user.roles?.some((r: string) => allowedRoles.includes(r as UserRoleType));
+    if (!hasAllowedRole) {
+      throw new ForbiddenException('You do not have the required role permissions to register prospects.');
+    }
+
+    if (user.roles?.includes(UserRoleType.PARTNER) && !user.roles?.includes(UserRoleType.SUPER_ADMIN)) {
+      if (user.profile?.onboardingStatus === 'REJECTED') {
+        throw new ForbiddenException('Your partner application was rejected. Prospect registration is disabled.');
+      }
+    }
+
     const normDomain = normalizeDomain(data.companyWebsite);
 
     // Fetch default company & owner (Sales Manager or Admin)
@@ -389,4 +406,80 @@ export class LeadsService {
 
     return updated;
   }
+
+  async approveLead(id: string, actorId: string) {
+    const lead = await this.prisma.lead.findUnique({ where: { id }, include: { partner: true } });
+    if (!lead) throw new NotFoundException('Lead not found');
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const l = await tx.lead.update({
+        where: { id },
+        data: { stage: LeadStage.QUALIFIED }
+      });
+
+      await tx.leadActivity.create({
+        data: {
+          leadId: id,
+          actorId,
+          activityType: 'STAGE_CHANGED',
+          notes: 'Prospect verified and approved by Operations/Administrator.',
+          channel: 'ADMIN_CONSOLE'
+        }
+      });
+
+      // Notify the partner who submitted the lead
+      await tx.notification.create({
+        data: {
+          userId: lead.partnerId,
+          type: 'LEAD_APPROVED',
+          title: 'Prospect Approved! 🎉',
+          message: `Your prospect "${lead.companyName}" has been verified and approved by Operations. You can now book discovery meetings!`
+        }
+      });
+
+      return l;
+    });
+
+    return updated;
+  }
+
+  async rejectLead(id: string, actorId: string, reason?: string) {
+    const lead = await this.prisma.lead.findUnique({ where: { id }, include: { partner: true } });
+    if (!lead) throw new NotFoundException('Lead not found');
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const l = await tx.lead.update({
+        where: { id },
+        data: {
+          stage: LeadStage.UNQUALIFIED,
+          unqualifiedReason: reason || 'Not approved by Operations'
+        }
+      });
+
+      await tx.leadActivity.create({
+        data: {
+          leadId: id,
+          actorId,
+          activityType: 'STAGE_CHANGED',
+          notes: `Prospect unverified/rejected by Operations. Reason: ${reason || 'Unspecified'}`,
+          channel: 'ADMIN_CONSOLE'
+        }
+      });
+
+      // Notify the partner who submitted the lead
+      await tx.notification.create({
+        data: {
+          userId: lead.partnerId,
+          type: 'LEAD_REJECTED',
+          title: 'Prospect Update',
+          message: `Your prospect "${lead.companyName}" was marked unqualified. Reason: ${reason || 'Does not match current criteria'}.`
+        }
+      });
+
+      return l;
+    });
+
+    return updated;
+  }
 }
+

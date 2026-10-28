@@ -289,6 +289,19 @@ export class LumoraApiClient {
     });
   }
 
+  async approveLead(id: string) {
+    return this.request<LeadDto>(`/leads/${id}/approve`, {
+      method: 'POST'
+    });
+  }
+
+  async rejectLead(id: string, reason?: string) {
+    return this.request<LeadDto>(`/leads/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason })
+    });
+  }
+
   async checkDuplicateLead(params: { companyWebsite?: string; contactEmail?: string; contactPhone?: string; companyName?: string }) {
     const query = new URLSearchParams();
     if (params.companyWebsite) query.set('companyWebsite', params.companyWebsite);

@@ -16,14 +16,15 @@ const queryClient = new QueryClient({
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
-      <View style={{ flex: 1, backgroundColor: '#070B19' }}>
-        <StatusBar style="light" />
+      <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <StatusBar style="dark" />
         <Stack
           screenOptions={{
-            headerStyle: { backgroundColor: '#0B1026' },
-            headerTintColor: '#FFFFFF',
-            headerTitleStyle: { fontWeight: 'bold' },
-            contentStyle: { backgroundColor: '#070B19' },
+            headerStyle: { backgroundColor: '#FFFFFF' },
+            headerShadowVisible: false,
+            headerTintColor: '#0B0F26',
+            headerTitleStyle: { fontWeight: '800', fontSize: 16, color: '#0B0F26' },
+            contentStyle: { backgroundColor: '#FFFFFF' },
             animation: 'slide_from_right'
           }}
         >

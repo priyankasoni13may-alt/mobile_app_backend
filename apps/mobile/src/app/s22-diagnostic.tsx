@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -16,11 +16,13 @@ import {
   CreditCard,
   ArrowRight
 } from 'lucide-react-native';
+import { LumoraButton } from '../components/LumoraButton';
+import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function DiagnosticOfferScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const leadId = (params.leadId as string) || 'lead-01-techcorp';
+  const leadId = (params.leadId as string) || '';
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -41,7 +43,7 @@ export default function DiagnosticOfferScreen() {
 
       {/* Mandatory Commercial Governance Disclaimer */}
       <View style={styles.disclaimerBox}>
-        <AlertTriangle size={16} color="#F59E0B" />
+        <AlertTriangle size={16} color="#D97706" />
         <Text style={styles.disclaimerText}>
           Commercial Notice: Treat price, taxes, scope, duration, and deliverables as configurable commercial proposals awaiting formal business contract execution. Never represent proposed commercial terms as formally approved.
         </Text>
@@ -68,47 +70,45 @@ export default function DiagnosticOfferScreen() {
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={() => {
-            Alert.alert('Proposal Dispatched', 'Diagnostic proposal PDF link generated for client.');
+            Alert.alert('Proposal Dispatched', 'Diagnostic proposal link generated for client.');
           }}
           style={styles.proposalBtn}
         >
-          <FileText size={18} color="#FFFFFF" />
+          <FileText size={18} color="#0B0F26" />
           <Text style={styles.proposalBtnText}>Generate & Send Client Proposal</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          activeOpacity={0.85}
-          onPress={() => router.push({ pathname: '/s23-service-deal', params: { dealId: 'deal-01-technova', amount: '37000' } })}
-          style={styles.paymentBtn}
-        >
-          <CreditCard size={18} color="#FFFFFF" />
-          <Text style={styles.paymentBtnText}>Submit Client Payment Evidence</Text>
-        </TouchableOpacity>
+        <LumoraButton
+          title="Submit Client Payment Evidence"
+          onPress={() => router.push({ pathname: '/s23-service-deal', params: { leadId, amount: '37000' } })}
+          icon={<CreditCard size={18} color="#FFFFFF" />}
+          size="lg"
+        />
       </View>
+
+      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16, paddingBottom: 60, gap: 14 },
-  heroCard: { backgroundColor: '#0B1026', borderRadius: 14, borderWidth: 1, borderColor: '#5B8EE2', padding: 20, gap: 8 },
-  packageTag: { fontSize: 10, fontWeight: 'bold', color: '#5B8EE2', textTransform: 'uppercase', letterSpacing: 1 },
-  title: { fontSize: 17, fontWeight: 'bold', color: '#FFFFFF' },
+  heroCard: { backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#EEF2F6', padding: 20, gap: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1 },
+  packageTag: { fontSize: 11, fontWeight: 'bold', color: '#4F75FF', textTransform: 'uppercase', letterSpacing: 0.8 },
+  title: { fontSize: 18, fontWeight: 'bold', color: '#0B0F26', lineHeight: 24 },
   priceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 },
-  priceAmount: { fontSize: 28, fontWeight: '800', color: '#FFFFFF' },
-  taxNote: { fontSize: 11, color: '#94A3B8' },
-  incentivePill: { alignSelf: 'flex-start', backgroundColor: 'rgba(16, 185, 129, 0.15)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, marginTop: 4 },
-  incentiveText: { fontSize: 11, fontWeight: 'bold', color: '#10B981' },
-  disclaimerBox: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: 'rgba(245, 158, 11, 0.1)', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(245, 158, 11, 0.3)' },
-  disclaimerText: { fontSize: 11, color: '#F59E0B', flex: 1, lineHeight: 16 },
-  card: { backgroundColor: '#0B1026', borderRadius: 12, borderWidth: 1, borderColor: '#1E294B', padding: 16, gap: 10 },
-  cardHeading: { fontSize: 13, fontWeight: 'bold', color: '#CBD5E1', marginBottom: 4 },
+  priceAmount: { fontSize: 32, fontWeight: '800', color: '#0B0F26' },
+  taxNote: { fontSize: 12, color: '#64748B' },
+  incentivePill: { alignSelf: 'flex-start', backgroundColor: '#ECFDF5', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 6, marginTop: 4, borderWidth: 1, borderColor: '#A7F3D0' },
+  incentiveText: { fontSize: 11, fontWeight: 'bold', color: '#059669' },
+  disclaimerBox: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: '#FFFBEB', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#FDE68A' },
+  disclaimerText: { fontSize: 11, color: '#B45309', flex: 1, lineHeight: 16 },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: '#EEF2F6', padding: 16, gap: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1 },
+  cardHeading: { fontSize: 13, fontWeight: 'bold', color: '#0B0F26', marginBottom: 4 },
   itemRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  itemText: { fontSize: 12, color: '#FFFFFF', flex: 1, lineHeight: 18 },
-  actions: { gap: 10, marginTop: 6 },
-  proposalBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#101735', height: 48, borderRadius: 10, borderWidth: 1, borderColor: '#1E294B' },
-  proposalBtnText: { fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' },
-  paymentBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#5B8EE2', height: 48, borderRadius: 10 },
-  paymentBtnText: { fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' }
+  itemText: { fontSize: 12, color: '#334155', flex: 1, lineHeight: 18 },
+  actions: { gap: 12, marginTop: 6 },
+  proposalBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#F1F5F9', height: 48, borderRadius: 24, borderWidth: 1, borderColor: '#E2E8F0' },
+  proposalBtnText: { fontSize: 13, fontWeight: 'bold', color: '#0B0F26' }
 });

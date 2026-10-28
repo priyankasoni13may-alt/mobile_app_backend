@@ -15,13 +15,10 @@ import {
   Clock,
   AlertCircle,
   Plus,
-  Calendar,
-  Phone,
-  Mail,
-  FileText,
-  Check,
-  ChevronRight
+  Check
 } from 'lucide-react-native';
+import { LumoraButton } from '../components/LumoraButton';
+import { PoweredByFooter } from '../components/PoweredByFooter';
 
 interface Task {
   id: string;
@@ -87,11 +84,11 @@ export default function FollowUpsTasksScreen() {
       case 'URGENT':
         return '#EF4444';
       case 'HIGH':
-        return '#5B8EE2';
+        return '#4F75FF';
       case 'MEDIUM':
-        return '#8CB4F5';
+        return '#8B5CF6';
       case 'LOW':
-        return '#94A3B8';
+        return '#64748B';
     }
   };
 
@@ -117,15 +114,15 @@ export default function FollowUpsTasksScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={[styles.priorityBadge, { backgroundColor: `${pColor}18` }]}>
+          <View style={[styles.priorityBadge, { backgroundColor: `${pColor}15` }]}>
             <Text style={[styles.priorityText, { color: pColor }]}>{t.priority}</Text>
           </View>
         </View>
 
         <View style={styles.taskFooter}>
           <View style={styles.timeRow}>
-            <Clock size={12} color={t.dueCategory === 'OVERDUE' ? '#EF4444' : '#94A3B8'} />
-            <Text style={[styles.dueText, t.dueCategory === 'OVERDUE' && { color: '#EF4444', fontWeight: 'bold' }]}>
+            <Clock size={12} color={t.dueCategory === 'OVERDUE' ? '#EF4444' : '#64748B'} />
+            <Text style={[styles.dueText, t.dueCategory === 'OVERDUE' && { color: '#EF4444', fontWeight: '700' }]}>
               {t.dueDate}
             </Text>
           </View>
@@ -143,15 +140,12 @@ export default function FollowUpsTasksScreen() {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Action Button */}
-        <TouchableOpacity
-          activeOpacity={0.85}
+        {/* Create Task Button */}
+        <LumoraButton
+          title="New Follow-up Task"
           onPress={() => setCreateModal(true)}
-          style={styles.newTaskBtn}
-        >
-          <Plus size={18} color="#FFFFFF" />
-          <Text style={styles.newTaskBtnText}>Schedule New Follow-up Task</Text>
-        </TouchableOpacity>
+          icon={<Plus size={18} color="#FFFFFF" />}
+        />
 
         {/* Overdue Section */}
         {overdueTasks.length > 0 && (
@@ -164,11 +158,14 @@ export default function FollowUpsTasksScreen() {
           </View>
         )}
 
-        {/* Today Section */}
+        {/* Today's Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Due Today ({todayTasks.length})</Text>
+          <View style={styles.sectionTitleRow}>
+            <Clock size={16} color="#4F75FF" />
+            <Text style={[styles.sectionTitle, { color: '#4F75FF' }]}>Due Today ({todayTasks.length})</Text>
+          </View>
           {todayTasks.length === 0 ? (
-            <Text style={styles.emptyText}>No pending tasks scheduled for today.</Text>
+            <Text style={styles.emptyText}>No follow-ups due today. You are caught up!</Text>
           ) : (
             todayTasks.map(renderTask)
           )}
@@ -176,8 +173,15 @@ export default function FollowUpsTasksScreen() {
 
         {/* Upcoming Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming ({upcomingTasks.length})</Text>
-          {upcomingTasks.map(renderTask)}
+          <View style={styles.sectionTitleRow}>
+            <CheckCircle2 size={16} color="#64748B" />
+            <Text style={styles.sectionTitle}>Upcoming Follow-ups ({upcomingTasks.length})</Text>
+          </View>
+          {upcomingTasks.length === 0 ? (
+            <Text style={styles.emptyText}>No upcoming follow-ups scheduled.</Text>
+          ) : (
+            upcomingTasks.map(renderTask)
+          )}
         </View>
 
         {/* Completed Section */}
@@ -187,6 +191,8 @@ export default function FollowUpsTasksScreen() {
             {completedTasks.map(renderTask)}
           </View>
         )}
+
+        <PoweredByFooter />
       </ScrollView>
 
       {/* Create Task Modal */}
@@ -198,19 +204,23 @@ export default function FollowUpsTasksScreen() {
             <Text style={styles.label}>Task Description</Text>
             <TextInput
               style={styles.input}
-              placeholder="e.g. Call CEO to finalize diagnostic roadmap"
-              placeholderTextColor="#64748B"
+              placeholder="Enter task description or action"
+              placeholderTextColor="#94A3B8"
               value={newTitle}
               onChangeText={setNewTitle}
+              cursorColor="#4F75FF"
+              selectionColor="#4F75FF"
             />
 
             <Text style={styles.label}>Associated Lead / Company</Text>
             <TextInput
               style={styles.input}
-              placeholder="e.g. TechNova Logistics"
-              placeholderTextColor="#64748B"
+              placeholder="Enter client company name"
+              placeholderTextColor="#94A3B8"
               value={newLead}
               onChangeText={setNewLead}
+              cursorColor="#4F75FF"
+              selectionColor="#4F75FF"
             />
 
             <View style={styles.modalActions}>
@@ -229,38 +239,36 @@ export default function FollowUpsTasksScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
-  content: { padding: 16, paddingBottom: 60, gap: 16 },
-  newTaskBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#5B8EE2', paddingVertical: 12, borderRadius: 10 },
-  newTaskBtnText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 13 },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  content: { padding: 16, paddingBottom: 40, gap: 16 },
   section: { gap: 10 },
   sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  sectionTitle: { fontSize: 13, fontWeight: 'bold', color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: 0.5 },
-  emptyText: { fontSize: 12, color: '#64748B', fontStyle: 'italic', paddingVertical: 4 },
-  taskCard: { backgroundColor: '#0B1026', borderRadius: 10, borderWidth: 1, borderColor: '#1E294B', padding: 12, gap: 10 },
-  overdueBorder: { borderColor: '#EF444460', backgroundColor: '#13111C' },
+  sectionTitle: { fontSize: 13, fontWeight: '700', color: '#0B0F26', textTransform: 'uppercase', letterSpacing: 0.5 },
+  emptyText: { fontSize: 13, color: '#64748B', fontStyle: 'italic', paddingVertical: 4 },
+  taskCard: { backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: '#EEF2F6', padding: 14, gap: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 3, elevation: 1 },
+  overdueBorder: { borderColor: '#FECACA', backgroundColor: '#FEF2F2' },
   taskHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, borderColor: '#64748B', alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+  checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, borderColor: '#CBD5E1', alignItems: 'center', justifyContent: 'center', marginTop: 2 },
   checkboxDone: { backgroundColor: '#10B981', borderColor: '#10B981' },
-  taskTitle: { fontSize: 14, fontWeight: '600', color: '#FFFFFF', lineHeight: 18 },
-  taskDoneText: { textDecorationLine: 'line-through', color: '#64748B' },
+  taskTitle: { fontSize: 14, fontWeight: '600', color: '#0B0F26', lineHeight: 18 },
+  taskDoneText: { textDecorationLine: 'line-through', color: '#94A3B8' },
   leadTag: { marginTop: 4 },
-  leadTagText: { fontSize: 11, color: '#8CB4F5', fontWeight: '600' },
-  priorityBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-  priorityText: { fontSize: 9, fontWeight: 'bold' },
-  taskFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: '#1E293B', paddingTop: 8 },
+  leadTagText: { fontSize: 12, color: '#4F75FF', fontWeight: '600' },
+  priorityBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  priorityText: { fontSize: 10, fontWeight: '700' },
+  taskFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingTop: 10 },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  dueText: { fontSize: 11, color: '#94A3B8' },
-  snoozeBtn: { paddingHorizontal: 8, paddingVertical: 4, backgroundColor: '#132438', borderRadius: 4 },
-  snoozeText: { fontSize: 11, color: '#94A3B8', fontWeight: '600' },
-  modalOverlay: { flex: 1, backgroundColor: '#00000099', justifyContent: 'center', padding: 20 },
-  modalContent: { backgroundColor: '#0B1026', borderRadius: 14, borderWidth: 1, borderColor: '#1E294B', padding: 20, gap: 12 },
-  modalTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFFFFF' },
-  label: { fontSize: 12, fontWeight: '600', color: '#CBD5E1' },
-  input: { backgroundColor: '#070B19', borderWidth: 1, borderColor: '#1E294B', borderRadius: 8, padding: 10, color: '#FFFFFF' },
+  dueText: { fontSize: 12, color: '#64748B' },
+  snoozeBtn: { paddingHorizontal: 10, paddingVertical: 4, backgroundColor: '#F1F5F9', borderRadius: 6 },
+  snoozeText: { fontSize: 11, color: '#475569', fontWeight: '600' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(11, 15, 38, 0.4)', justifyContent: 'center', padding: 20 },
+  modalContent: { backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#EEF2F6', padding: 20, gap: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.1, shadowRadius: 16, elevation: 8 },
+  modalTitle: { fontSize: 17, fontWeight: '700', color: '#0B0F26' },
+  label: { fontSize: 13, fontWeight: '600', color: '#334155' },
+  input: { backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#EEF2F6', borderRadius: 10, padding: 12, color: '#0B0F26', fontSize: 14 },
   modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 8 },
-  cancelBtn: { paddingVertical: 8, paddingHorizontal: 14 },
-  cancelText: { color: '#94A3B8' },
-  saveBtn: { backgroundColor: '#5B8EE2', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 6 },
-  saveBtnText: { color: '#FFFFFF', fontWeight: 'bold' }
+  cancelBtn: { paddingVertical: 10, paddingHorizontal: 16 },
+  cancelText: { color: '#64748B', fontWeight: '600', fontSize: 14 },
+  saveBtn: { backgroundColor: '#4F75FF', paddingVertical: 10, paddingHorizontal: 18, borderRadius: 10 },
+  saveBtnText: { color: '#FFFFFF', fontWeight: '700', fontSize: 14 }
 });

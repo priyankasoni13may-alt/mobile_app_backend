@@ -21,6 +21,7 @@ import {
   Search,
   Lock
 } from 'lucide-react-native';
+import { PoweredByFooter } from '../components/PoweredByFooter';
 
 interface LedgerItem {
   id: string;
@@ -77,9 +78,9 @@ export default function EarningsLedgerScreen() {
       case 'PAID':
         return '#10B981';
       case 'APPROVED':
-        return '#8CB4F5';
+        return '#4F75FF';
       case 'PENDING':
-        return '#F59E0B';
+        return '#D97706';
       case 'REJECTED':
         return '#EF4444';
     }
@@ -90,13 +91,15 @@ export default function EarningsLedgerScreen() {
       {/* Search and Filters */}
       <View style={styles.headerFilter}>
         <View style={styles.searchBar}>
-          <Search size={16} color="#94A3B8" />
+          <Search size={16} color="#64748B" />
           <TextInput
             style={styles.searchInput}
             placeholder="Search deals, clients..."
-            placeholderTextColor="#64748B"
+            placeholderTextColor="#94A3B8"
             value={search}
             onChangeText={setSearch}
+            cursorColor="#4F75FF"
+            selectionColor="#4F75FF"
           />
         </View>
 
@@ -116,7 +119,7 @@ export default function EarningsLedgerScreen() {
       {/* Ledger Feed */}
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.securityBanner}>
-          <Lock size={14} color="#94A3B8" />
+          <Lock size={14} color="#4F75FF" />
           <Text style={styles.securityText}>
             Append-Only Financial Ledger: Records are immutable. Reversals or corrections are recorded as adjustment entries.
           </Text>
@@ -124,76 +127,78 @@ export default function EarningsLedgerScreen() {
 
         {filteredItems.length === 0 ? (
           <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 50, paddingHorizontal: 20, gap: 12 }}>
-            <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#132438', alignItems: 'center', justifyContent: 'center' }}>
-              <Lock size={36} color="#64748B" />
+            <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: '#EFF6FF', alignItems: 'center', justifyContent: 'center' }}>
+              <Lock size={36} color="#4F75FF" />
             </View>
-            <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#FFFFFF' }}>No Commission Records</Text>
-            <Text style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', lineHeight: 18, maxWidth: 300 }}>
+            <Text style={{ fontSize: 17, fontWeight: 'bold', color: '#0B0F26' }}>No Commission Records</Text>
+            <Text style={{ fontSize: 12, color: '#64748B', textAlign: 'center', lineHeight: 18, maxWidth: 300 }}>
               You have no ledger entries yet. When you close a diagnostic or service deal and client payment is verified, your append-only incentive entries will appear here.
             </Text>
           </View>
         ) : (
           filteredItems.map((item) => {
-          const color = getStatusColor(item.status);
-          return (
-            <View key={item.id} style={styles.card}>
-              <View style={styles.rowBetween}>
-                <View style={[styles.statusBadge, { backgroundColor: `${color}18` }]}>
-                  <Text style={[styles.statusText, { color }]}>{item.status}</Text>
+            const color = getStatusColor(item.status);
+            return (
+              <View key={item.id} style={styles.card}>
+                <View style={styles.rowBetween}>
+                  <View style={[styles.statusBadge, { backgroundColor: `${color}15` }]}>
+                    <Text style={[styles.statusText, { color }]}>{item.status}</Text>
+                  </View>
+                  <Text style={styles.date}>{item.createdAt}</Text>
                 </View>
-                <Text style={styles.date}>{item.createdAt}</Text>
+
+                <Text style={styles.dealTitle}>{item.dealName}</Text>
+                <Text style={styles.companyName}>Client: {item.leadCompany}</Text>
+
+                <View style={styles.divider} />
+
+                <View style={styles.detailGrid}>
+                  <View>
+                    <Text style={styles.gridLabel}>Incentive Amount</Text>
+                    <Text style={[styles.gridValue, { color: '#0B0F26', fontSize: 18 }]}>{item.amountDisplay}</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.gridLabel}>Policy Version</Text>
+                    <Text style={styles.gridValue}>{item.policyVersion}</Text>
+                  </View>
+                </View>
+
+                {item.paymentRef && (
+                  <View style={styles.refBox}>
+                    <Text style={styles.refLabel}>Bank Reference:</Text>
+                    <Text style={styles.refValue}>{item.paymentRef}</Text>
+                  </View>
+                )}
+
+                {item.approvedBy && (
+                  <Text style={styles.approverText}>Approved by: {item.approvedBy}</Text>
+                )}
+
+                <View style={styles.cardActions}>
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={() => router.push({ pathname: '/s16-lead-detail', params: { leadId: item.id } })}
+                    style={styles.secondaryBtn}
+                  >
+                    <FileText size={14} color="#4F75FF" />
+                    <Text style={styles.secondaryBtnText}>View Deal</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={() => handleOpenDispute(item)}
+                    style={styles.disputeBtn}
+                  >
+                    <ShieldAlert size={14} color="#EF4444" />
+                    <Text style={styles.disputeBtnText}>Raise Dispute</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
+            );
+          })
+        )}
 
-              <Text style={styles.dealTitle}>{item.dealName}</Text>
-              <Text style={styles.companyName}>Client: {item.leadCompany}</Text>
-
-              <View style={styles.divider} />
-
-              <View style={styles.detailGrid}>
-                <View>
-                  <Text style={styles.gridLabel}>Incentive Amount</Text>
-                  <Text style={[styles.gridValue, { color: '#FFFFFF', fontSize: 18 }]}>{item.amountDisplay}</Text>
-                </View>
-                <View>
-                  <Text style={styles.gridLabel}>Policy Version</Text>
-                  <Text style={styles.gridValue}>{item.policyVersion}</Text>
-                </View>
-              </View>
-
-              {item.paymentRef && (
-                <View style={styles.refBox}>
-                  <Text style={styles.refLabel}>Bank Reference:</Text>
-                  <Text style={styles.refValue}>{item.paymentRef}</Text>
-                </View>
-              )}
-
-              {item.approvedBy && (
-                <Text style={styles.approverText}>Approved by: {item.approvedBy}</Text>
-              )}
-
-              <View style={styles.cardActions}>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => router.push({ pathname: '/s16-lead-detail', params: { leadId: 'lead-01' } })}
-                  style={styles.secondaryBtn}
-                >
-                  <FileText size={14} color="#8CB4F5" />
-                  <Text style={styles.secondaryBtnText}>View Deal</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => handleOpenDispute(item)}
-                  style={styles.disputeBtn}
-                >
-                  <ShieldAlert size={14} color="#EF4444" />
-                  <Text style={styles.disputeBtnText}>Raise Dispute</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          );
-        })
-      )}
+        <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
       </ScrollView>
 
       {/* Dispute Modal */}
@@ -214,11 +219,13 @@ export default function EarningsLedgerScreen() {
             <TextInput
               style={styles.textArea}
               placeholder="Explain discrepancy with deal contract value or policy terms..."
-              placeholderTextColor="#64748B"
+              placeholderTextColor="#94A3B8"
               multiline
               numberOfLines={4}
               value={disputeReason}
               onChangeText={setDisputeReason}
+              cursorColor="#4F75FF"
+              selectionColor="#4F75FF"
             />
 
             <View style={styles.modalActions}>
@@ -243,47 +250,47 @@ export default function EarningsLedgerScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
-  headerFilter: { backgroundColor: '#0B1026', padding: 12, gap: 10, borderBottomWidth: 1, borderBottomColor: '#1E294B' },
-  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#070B19', borderRadius: 8, paddingHorizontal: 12, borderWidth: 1, borderColor: '#1E294B' },
-  searchInput: { flex: 1, color: '#FFFFFF', paddingVertical: 8, fontSize: 13, marginLeft: 8 },
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  headerFilter: { backgroundColor: '#FFFFFF', padding: 12, gap: 10, borderBottomWidth: 1, borderBottomColor: '#EEF2F6' },
+  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 10, paddingHorizontal: 12, borderWidth: 1, borderColor: '#E2E8F0' },
+  searchInput: { flex: 1, color: '#0B0F26', paddingVertical: 8, fontSize: 13, marginLeft: 8 },
   filterScroll: { gap: 8 },
-  filterChip: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, backgroundColor: '#132438' },
-  filterChipActive: { backgroundColor: '#5B8EE2' },
-  filterText: { color: '#94A3B8', fontSize: 11, fontWeight: '700' },
+  filterChip: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, backgroundColor: '#F1F5F9' },
+  filterChipActive: { backgroundColor: '#4F75FF' },
+  filterText: { color: '#64748B', fontSize: 11, fontWeight: '700' },
   filterTextActive: { color: '#FFFFFF' },
   content: { padding: 16, paddingBottom: 60, gap: 12 },
-  securityBanner: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#132438', padding: 10, borderRadius: 8 },
-  securityText: { flex: 1, fontSize: 11, color: '#94A3B8' },
-  card: { backgroundColor: '#0B1026', borderRadius: 12, borderWidth: 1, borderColor: '#1E294B', padding: 14, gap: 8 },
+  securityBanner: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#EFF6FF', padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#DBEAFE' },
+  securityText: { flex: 1, fontSize: 11, color: '#1E40AF', lineHeight: 16 },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 14, borderWidth: 1, borderColor: '#EEF2F6', padding: 16, gap: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1 },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4 },
+  statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
   statusText: { fontSize: 10, fontWeight: '800' },
   date: { fontSize: 11, color: '#64748B' },
-  dealTitle: { fontSize: 15, fontWeight: '700', color: '#FFFFFF', marginTop: 2 },
-  companyName: { fontSize: 12, color: '#94A3B8' },
-  divider: { height: 1, backgroundColor: '#1E293B', marginVertical: 4 },
+  dealTitle: { fontSize: 15, fontWeight: '700', color: '#0B0F26', marginTop: 2 },
+  companyName: { fontSize: 12, color: '#64748B' },
+  divider: { height: 1, backgroundColor: '#EEF2F6', marginVertical: 4 },
   detailGrid: { flexDirection: 'row', justifyContent: 'space-between' },
   gridLabel: { fontSize: 11, color: '#64748B' },
-  gridValue: { fontSize: 13, fontWeight: '600', color: '#CBD5E1', marginTop: 2 },
-  refBox: { backgroundColor: '#132438', padding: 8, borderRadius: 6, flexDirection: 'row', gap: 6 },
-  refLabel: { fontSize: 11, color: '#94A3B8' },
-  refValue: { fontSize: 11, fontWeight: 'bold', color: '#8CB4F5' },
+  gridValue: { fontSize: 13, fontWeight: '600', color: '#334155', marginTop: 2 },
+  refBox: { backgroundColor: '#F8FAFC', padding: 8, borderRadius: 6, flexDirection: 'row', gap: 6, borderWidth: 1, borderColor: '#EEF2F6' },
+  refLabel: { fontSize: 11, color: '#64748B' },
+  refValue: { fontSize: 11, fontWeight: 'bold', color: '#4F75FF' },
   approverText: { fontSize: 11, color: '#64748B', fontStyle: 'italic' },
   cardActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 6 },
-  secondaryBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, backgroundColor: '#8CB4F515', borderRadius: 6 },
-  secondaryBtnText: { color: '#8CB4F5', fontSize: 12, fontWeight: '600' },
-  disputeBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, backgroundColor: '#EF444415', borderRadius: 6 },
+  secondaryBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, backgroundColor: '#EFF6FF', borderRadius: 6 },
+  secondaryBtnText: { color: '#4F75FF', fontSize: 12, fontWeight: '600' },
+  disputeBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, backgroundColor: '#FEF2F2', borderRadius: 6 },
   disputeBtnText: { color: '#EF4444', fontSize: 12, fontWeight: '600' },
-  modalOverlay: { flex: 1, backgroundColor: '#00000099', justifyContent: 'center', padding: 20 },
-  modalContent: { backgroundColor: '#0B1026', borderRadius: 14, borderWidth: 1, borderColor: '#1E294B', padding: 20, gap: 12 },
-  modalTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFFFFF' },
-  modalSub: { fontSize: 12, color: '#94A3B8' },
-  label: { fontSize: 12, fontWeight: '600', color: '#CBD5E1' },
-  textArea: { backgroundColor: '#070B19', borderWidth: 1, borderColor: '#1E294B', borderRadius: 8, padding: 10, color: '#FFFFFF', textAlignVertical: 'top' },
+  modalOverlay: { flex: 1, backgroundColor: '#00000060', justifyContent: 'center', padding: 20 },
+  modalContent: { backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#EEF2F6', padding: 20, gap: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 4 },
+  modalTitle: { fontSize: 16, fontWeight: 'bold', color: '#0B0F26' },
+  modalSub: { fontSize: 12, color: '#64748B' },
+  label: { fontSize: 12, fontWeight: '600', color: '#334155' },
+  textArea: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 8, padding: 10, color: '#0B0F26', textAlignVertical: 'top' },
   modalActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 8 },
   cancelBtn: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 6 },
-  cancelText: { color: '#94A3B8', fontWeight: '600' },
+  cancelText: { color: '#64748B', fontWeight: '600' },
   submitDisputeBtn: { backgroundColor: '#EF4444', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 6 },
   submitDisputeText: { color: '#FFFFFF', fontWeight: 'bold' }
 });

@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Sparkles } from 'lucide-react-native';
+import { PoweredByFooter } from '../components/PoweredByFooter';
+import { LumoraLogo } from '../components/LumoraLogo';
+import { LumoraGradientText } from '../components/LumoraGradientText';
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -16,36 +18,90 @@ export default function SplashScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <View style={styles.badgeRow}>
-          <Text style={styles.brandLumora}>LUMORA</Text>
-          <View style={styles.plusBox}>
-            <Text style={styles.plusText}>+</Text>
-          </View>
-          <Text style={styles.brandCypher}>CYPHER SWIFT</Text>
+        <LumoraLogo size={90} showText={false} />
+        
+        <Text style={styles.brandTitle}>Lumora's Partners</Text>
+        
+        <View style={styles.gradientBox}>
+          <LumoraGradientText
+            text="Business Development Global Network"
+            fontSize={15}
+            fontWeight="800"
+            height={24}
+            align="middle"
+          />
         </View>
 
-        <Text style={styles.tagline}>Partner Network App v2.0</Text>
-        <Text style={styles.subtext}>Business Development & High-Trust Incentive Network</Text>
+        <View style={styles.pillBadge}>
+          <Text style={styles.pillText}>LOCAL | NATIONAL AND GLOBAL REACH</Text>
+        </View>
       </View>
 
       <View style={styles.footer}>
-        <ActivityIndicator size="small" color="#5B8EE2" />
+        <ActivityIndicator size="small" color="#4F75FF" />
         <Text style={styles.footerText}>Secure Enterprise Environment Initializing...</Text>
+        <PoweredByFooter style={{ marginTop: 8 }} />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 60 },
-  logoContainer: { alignItems: 'center', marginTop: 180 },
-  badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  brandLumora: { fontSize: 24, fontWeight: '900', color: '#FFFFFF', letterSpacing: 2 },
-  plusBox: { backgroundColor: '#5B8EE2', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-  plusText: { fontSize: 14, fontWeight: 'bold', color: '#FFFFFF' },
-  brandCypher: { fontSize: 24, fontWeight: '900', color: '#38BDF8', letterSpacing: 2 },
-  tagline: { fontSize: 13, fontWeight: 'bold', color: '#5B8EE2', marginTop: 12, textTransform: 'uppercase', letterSpacing: 1 },
-  subtext: { fontSize: 11, color: '#94A3B8', marginTop: 4, textAlign: 'center', maxWidth: 280 },
-  footer: { alignItems: 'center', gap: 10 },
-  footerText: { fontSize: 11, color: '#64748B' }
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 50
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginTop: 150,
+    paddingHorizontal: 20,
+    width: '100%'
+  },
+  brandTitle: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: '#0B0F26',
+    letterSpacing: 1.2,
+    textAlign: 'center',
+    marginTop: 20
+  },
+  gradientBox: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 6
+  },
+  pillBadge: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginTop: 20,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1
+  },
+  pillText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 1.2
+  },
+  footer: {
+    alignItems: 'center',
+    gap: 6,
+    width: '100%',
+    paddingHorizontal: 20
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#94A3B8',
+    fontWeight: '500'
+  }
 });

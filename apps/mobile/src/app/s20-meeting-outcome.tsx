@@ -12,6 +12,8 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { CheckCircle2, XCircle, Clock, Save, ArrowRight } from 'lucide-react-native';
 import { apiClient } from '../services/api';
+import { LumoraButton } from '../components/LumoraButton';
+import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function MeetingOutcomeScreen() {
   const router = useRouter();
@@ -60,7 +62,7 @@ export default function MeetingOutcomeScreen() {
     >
       <View style={styles.header}>
         <Text style={styles.headerLabel}>Record Meeting Outcome</Text>
-        <Text style={styles.headerTitle}>{companyName}</Text>
+        <Text style={styles.headerTitle}>{companyName || 'Discovery Session'}</Text>
       </View>
 
       <View style={styles.form}>
@@ -72,7 +74,7 @@ export default function MeetingOutcomeScreen() {
               onPress={() => setAttendanceConfirmed(true)}
               style={[styles.toggleBtn, attendanceConfirmed && styles.toggleBtnActive]}
             >
-              <CheckCircle2 size={16} color={attendanceConfirmed ? '#FFFFFF' : '#94A3B8'} />
+              <CheckCircle2 size={16} color={attendanceConfirmed ? '#FFFFFF' : '#64748B'} />
               <Text style={[styles.toggleText, attendanceConfirmed && styles.toggleTextActive]}>Attended & Held</Text>
             </TouchableOpacity>
 
@@ -80,7 +82,7 @@ export default function MeetingOutcomeScreen() {
               onPress={() => setAttendanceConfirmed(false)}
               style={[styles.toggleBtn, !attendanceConfirmed && styles.toggleBtnActiveRose]}
             >
-              <XCircle size={16} color={!attendanceConfirmed ? '#FFFFFF' : '#94A3B8'} />
+              <XCircle size={16} color={!attendanceConfirmed ? '#FFFFFF' : '#64748B'} />
               <Text style={[styles.toggleText, !attendanceConfirmed && styles.toggleTextActiveRose]}>Client No-Show</Text>
             </TouchableOpacity>
           </View>
@@ -94,7 +96,7 @@ export default function MeetingOutcomeScreen() {
               onPress={() => setIsQualified(true)}
               style={[styles.toggleBtn, isQualified && styles.toggleBtnActiveGreen]}
             >
-              <CheckCircle2 size={16} color={isQualified ? '#FFFFFF' : '#94A3B8'} />
+              <CheckCircle2 size={16} color={isQualified ? '#FFFFFF' : '#64748B'} />
               <Text style={[styles.toggleText, isQualified && styles.toggleTextActive]}>Qualified Fit</Text>
             </TouchableOpacity>
 
@@ -102,7 +104,7 @@ export default function MeetingOutcomeScreen() {
               onPress={() => setIsQualified(false)}
               style={[styles.toggleBtn, !isQualified && styles.toggleBtnActiveRose]}
             >
-              <XCircle size={16} color={!isQualified ? '#FFFFFF' : '#94A3B8'} />
+              <XCircle size={16} color={!isQualified ? '#FFFFFF' : '#64748B'} />
               <Text style={[styles.toggleText, !isQualified && styles.toggleTextActiveRose]}>Unqualified</Text>
             </TouchableOpacity>
           </View>
@@ -115,10 +117,12 @@ export default function MeetingOutcomeScreen() {
             value={requirementSummary}
             onChangeText={setRequirementSummary}
             placeholder="Summary of client discussion, priorities, scope..."
-            placeholderTextColor="#64748B"
+            placeholderTextColor="#94A3B8"
             multiline
             numberOfLines={3}
             style={styles.textArea}
+            cursorColor="#4F75FF"
+            selectionColor="#4F75FF"
           />
         </View>
 
@@ -127,9 +131,11 @@ export default function MeetingOutcomeScreen() {
           <TextInput
             value={budgetRange}
             onChangeText={setBudgetRange}
-            placeholder="e.g. ₹35,000 - ₹50,000 diagnostic audit"
-            placeholderTextColor="#64748B"
+            placeholder="Enter discussed budget and scope range"
+            placeholderTextColor="#94A3B8"
             style={styles.input}
+            cursorColor="#4F75FF"
+            selectionColor="#4F75FF"
           />
         </View>
 
@@ -138,11 +144,13 @@ export default function MeetingOutcomeScreen() {
           <TextInput
             value={objections}
             onChangeText={setObjections}
-            placeholder="Any client concerns or hesitations..."
-            placeholderTextColor="#64748B"
+            placeholder="Enter any client concerns or hesitations"
+            placeholderTextColor="#94A3B8"
             multiline
             numberOfLines={2}
             style={styles.textArea}
+            cursorColor="#4F75FF"
+            selectionColor="#4F75FF"
           />
         </View>
 
@@ -151,52 +159,48 @@ export default function MeetingOutcomeScreen() {
           <TextInput
             value={agreedNextAction}
             onChangeText={setAgreedNextAction}
-            placeholder="e.g. Issue proposal, follow-up call on Friday..."
-            placeholderTextColor="#64748B"
+            placeholder="Enter agreed next action and milestones"
+            placeholderTextColor="#94A3B8"
             style={styles.input}
+            cursorColor="#4F75FF"
+            selectionColor="#4F75FF"
           />
         </View>
 
-        <TouchableOpacity
-          activeOpacity={0.85}
-          onPress={handleSubmit}
-          disabled={loading}
-          style={styles.submitBtn}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <>
-              <CheckCircle2 size={18} color="#FFFFFF" />
-              <Text style={styles.submitBtnText}>Submit Meeting Outcome</Text>
-            </>
-          )}
-        </TouchableOpacity>
+        <View style={{ marginTop: 10 }}>
+          <LumoraButton
+            title="Submit Meeting Outcome"
+            onPress={handleSubmit}
+            loading={loading}
+            icon={<CheckCircle2 size={18} color="#FFFFFF" />}
+            size="lg"
+          />
+        </View>
       </View>
+
+      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16, paddingBottom: 60 },
-  header: { backgroundColor: '#0B1026', padding: 14, borderRadius: 10, borderWidth: 1, borderColor: '#1E294B', marginBottom: 16 },
-  headerLabel: { fontSize: 10, fontWeight: 'bold', color: '#5B8EE2', textTransform: 'uppercase' },
-  headerTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFFFFF', marginTop: 2 },
-  form: { gap: 14 },
+  header: { backgroundColor: '#F8FAFC', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#EEF2F6', marginBottom: 16 },
+  headerLabel: { fontSize: 11, fontWeight: 'bold', color: '#4F75FF', textTransform: 'uppercase' },
+  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#0B0F26', marginTop: 2 },
+  form: { gap: 16 },
   toggleGroup: { gap: 6 },
-  label: { fontSize: 11, fontWeight: '600', color: '#CBD5E1' },
+  label: { fontSize: 12, fontWeight: '600', color: '#334155' },
   toggleRow: { flexDirection: 'row', gap: 8 },
-  toggleBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#0B1026', paddingVertical: 10, borderRadius: 8, borderWidth: 1, borderColor: '#1E294B' },
-  toggleBtnActive: { backgroundColor: '#5B8EE2', borderColor: '#5B8EE2' },
+  toggleBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#F8FAFC', paddingVertical: 12, borderRadius: 10, borderWidth: 1, borderColor: '#E2E8F0' },
+  toggleBtnActive: { backgroundColor: '#4F75FF', borderColor: '#4F75FF' },
   toggleBtnActiveGreen: { backgroundColor: '#10B981', borderColor: '#10B981' },
   toggleBtnActiveRose: { backgroundColor: '#EF4444', borderColor: '#EF4444' },
-  toggleText: { fontSize: 12, fontWeight: 'bold', color: '#94A3B8' },
+  toggleText: { fontSize: 12, fontWeight: 'bold', color: '#64748B' },
   toggleTextActive: { color: '#FFFFFF' },
   toggleTextActiveRose: { color: '#FFFFFF' },
-  inputGroup: { gap: 4 },
-  input: { backgroundColor: '#0B1026', borderWidth: 1, borderColor: '#1E294B', borderRadius: 8, paddingHorizontal: 12, height: 44, color: '#FFFFFF', fontSize: 13 },
-  textArea: { backgroundColor: '#0B1026', borderWidth: 1, borderColor: '#1E294B', borderRadius: 8, padding: 10, color: '#FFFFFF', fontSize: 13, height: 64, textAlignVertical: 'top' },
-  submitBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#5B8EE2', height: 48, borderRadius: 10, marginTop: 10 },
-  submitBtnText: { fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' }
+  inputGroup: { gap: 6 },
+  input: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 10, paddingHorizontal: 12, height: 48, color: '#0B0F26', fontSize: 13 },
+  textArea: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 10, padding: 12, color: '#0B0F26', fontSize: 13, minHeight: 68, textAlignVertical: 'top' }
 });

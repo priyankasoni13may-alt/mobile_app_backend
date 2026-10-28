@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import {
   Plus,
   Calendar,
@@ -17,10 +17,14 @@ import {
   Clock,
   ArrowRight,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  Building2
 } from 'lucide-react-native';
+import { apiClient } from '../../services/api';
 import { useDraftStore } from '../../store/draftStore';
 import { useAuthStore } from '../../store/authStore';
+import { PoweredByFooter } from '../../components/PoweredByFooter';
+import { LumoraGradientText } from '../../components/LumoraGradientText';
 
 export default function HomeDashboardScreen() {
   const router = useRouter();
@@ -28,34 +32,64 @@ export default function HomeDashboardScreen() {
   const { user } = useAuthStore();
 
   const unsyncedCount = savedDrafts.length;
+  const [leadList, setLeadList] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true;
+      apiClient.listLeads().then((res) => {
+        if (!isMounted) return;
+        if (res.data) {
+          const list = Array.isArray(res.data) ? res.data : (res.data as any).data || [];
+          setLeadList(list);
+
+          // Map recent leads to activity events
+          const mappedActivities = list.slice(0, 4).map((l: any) => ({
+            title: `Registered: ${l.companyName}`,
+            desc: l.needSummary ? l.needSummary.slice(0, 60) + '...' : `Stage: ${l.stage}`,
+            time: l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : 'Recently',
+            icon: Building2,
+            color: l.stage === 'QUALIFIED' ? '#10B981' : '#4F75FF'
+          }));
+          setActivities(mappedActivities);
+        }
+      }).catch(() => {});
+
+      return () => {
+        isMounted = false;
+      };
+    }, [])
+  );
 
   const kpis = [
-    { label: "Today's Outreach", value: '0', target: '30', pct: 0, color: '#38BDF8' },
-    { label: 'Weekly Meetings', value: '0', target: '3', pct: 0, color: '#A855F7' },
-    { label: 'Monthly Diagnostics', value: '0', target: '3', pct: 0, color: '#5B8EE2' },
-    { label: 'Annual Clients', value: '0', target: '15', pct: 0, color: '#10B981' }
+    { label: "Total Prospects", value: String(leadList.length), target: '30', pct: Math.min(100, Math.round((leadList.length / 30) * 100)), color: '#4F75FF' },
+    { label: 'Approved Leads', value: String(leadList.filter((l) => l.stage === 'QUALIFIED').length), target: '10', pct: Math.min(100, Math.round((leadList.filter((l) => l.stage === 'QUALIFIED').length / 10) * 100)), color: '#8B5CF6' },
+    { label: 'Pending Approval', value: String(leadList.filter((l) => l.stage === 'NEW').length), target: '5', pct: Math.min(100, Math.round((leadList.filter((l) => l.stage === 'NEW').length / 5) * 100)), color: '#E0A97D' },
+    { label: 'Annual Clients', value: '0', target: '15', pct: 0, color: '#EC4899' }
   ];
 
   const quickActions = [
-    { title: 'Add Lead', icon: Plus, color: '#5B8EE2', route: '/s14-add-lead' },
-    { title: 'Book Meeting', icon: Calendar, color: '#38BDF8', route: '/s18-book-meeting' },
-    { title: 'Sales Pipeline', icon: Layers, color: '#A855F7', route: '/s21-pipeline' },
-    { title: 'Pitch Guides', icon: Briefcase, color: '#F59E0B', route: '/s12-services' }
+    { title: 'Add Lead', icon: Plus, color: '#4F75FF', route: '/s14-add-lead' },
+    { title: 'Book Meeting', icon: Calendar, color: '#8B5CF6', route: '/s18-book-meeting' },
+    { title: 'Sales Pipeline', icon: Layers, color: '#E0A97D', route: '/s21-pipeline' },
+    { title: 'Pitch Guides', icon: Briefcase, color: '#EC4899', route: '/s12-services' }
   ];
-
-  const [activities, setActivities] = useState<any[]>([]);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Welcome Banner */}
       <View style={styles.welcomeCard}>
-        <View>
+        <View style={{ gap: 2 }}>
           <Text style={styles.partnerName}>
-            Hello, {user?.fullName?.split(' ')[0] || 'Partner'} 👋
+            {user?.fullName ? `Hello, ${user.fullName.split(' ')[0]} 👋` : 'Welcome Back 👋'}
           </Text>
-          <Text style={styles.welcomeSubtitle}>
-            Lumora + Cypher Swift Business Development Network
-          </Text>
+          <LumoraGradientText
+            text="Lumora's Partners • Business Development Global Network"
+            fontSize={12}
+            fontWeight="800"
+            height={18}
+          />
         </View>
 
         {unsyncedCount > 0 && (
@@ -155,42 +189,93 @@ export default function HomeDashboardScreen() {
           })
         )}
       </View>
+
+      <PoweredByFooter style={{ marginTop: 12, marginBottom: 10 }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16, paddingBottom: 80, gap: 16 },
-  welcomeCard: { backgroundColor: '#0B1026', borderRadius: 14, padding: 16, borderWidth: 1, borderColor: '#1E294B', gap: 10 },
-  partnerName: { fontSize: 18, fontWeight: 'bold', color: '#FFFFFF' },
-  welcomeSubtitle: { fontSize: 11, color: '#94A3B8', marginTop: 2 },
-  unsyncedBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F59E0B15', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, alignSelf: 'flex-start', borderWidth: 1, borderColor: '#F59E0B40' },
-  unsyncedText: { fontSize: 11, color: '#F59E0B', fontWeight: 'bold' },
+  welcomeCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+    gap: 10,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2
+  },
+  partnerName: { fontSize: 20, fontWeight: '900', color: '#0B0F26', letterSpacing: -0.3 },
+  unsyncedBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#FEF3C7', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, alignSelf: 'flex-start', borderWidth: 1, borderColor: '#FDE68A' },
+  unsyncedText: { fontSize: 11, color: '#D97706', fontWeight: 'bold' },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   sectionHeaderBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  sectionTitle: { fontSize: 13, fontWeight: 'bold', color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: 0.5 },
+  sectionTitle: { fontSize: 13, fontWeight: '800', color: '#0B0F26', textTransform: 'uppercase', letterSpacing: 0.5 },
   kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  kpiCard: { width: '48%', backgroundColor: '#0B1026', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#1E294B', gap: 6 },
-  kpiLabel: { fontSize: 11, color: '#94A3B8', fontWeight: '600' },
+  kpiCard: {
+    width: '48%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+    gap: 6,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2
+  },
+  kpiLabel: { fontSize: 11, color: '#64748B', fontWeight: '700' },
   kpiValueRow: { flexDirection: 'row', alignItems: 'baseline', gap: 4 },
-  kpiValue: { fontSize: 20, fontWeight: '800', color: '#FFFFFF' },
-  kpiTarget: { fontSize: 11, color: '#64748B', fontWeight: 'bold' },
-  progressBar: { height: 4, backgroundColor: '#132438', borderRadius: 2, overflow: 'hidden' },
-  progressFill: { height: '100%', borderRadius: 2 },
+  kpiValue: { fontSize: 22, fontWeight: '900', color: '#0B0F26' },
+  kpiTarget: { fontSize: 11, color: '#94A3B8', fontWeight: 'bold' },
+  progressBar: { height: 5, backgroundColor: '#F1F5F9', borderRadius: 3, overflow: 'hidden' },
+  progressFill: { height: '100%', borderRadius: 3 },
   quickActionGrid: { flexDirection: 'row', gap: 10 },
-  quickActionCard: { flex: 1, backgroundColor: '#0B1026', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#1E294B', alignItems: 'center', gap: 8 },
-  quickActionIcon: { width: 38, height: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  quickActionTitle: { fontSize: 11, fontWeight: 'bold', color: '#CBD5E1', textAlign: 'center' },
-  activityCard: { backgroundColor: '#0B1026', borderRadius: 14, padding: 14, borderWidth: 1, borderColor: '#1E294B' },
-  emptyActivity: { alignItems: 'center', justifyContent: 'center', paddingVertical: 30, gap: 8 },
-  emptyActivityTitle: { fontSize: 14, fontWeight: 'bold', color: '#CBD5E1' },
-  emptyActivitySub: { fontSize: 11, color: '#64748B', textAlign: 'center', lineHeight: 16, maxWidth: 260 },
-  firstLeadBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#5B8EE2', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, marginTop: 6 },
-  firstLeadBtnText: { color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' },
-  activityItem: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#132438' },
-  activityIconCircle: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  activityItemTitle: { fontSize: 13, fontWeight: '600', color: '#FFFFFF' },
-  activityItemDesc: { fontSize: 11, color: '#94A3B8' },
-  activityTime: { fontSize: 10, color: '#64748B' }
+  quickActionCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+    alignItems: 'center',
+    gap: 8,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2
+  },
+  quickActionIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  quickActionTitle: { fontSize: 11, fontWeight: '700', color: '#334155', textAlign: 'center' },
+  activityCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2
+  },
+  emptyActivity: { alignItems: 'center', justifyContent: 'center', paddingVertical: 26, gap: 8 },
+  emptyActivityTitle: { fontSize: 14, fontWeight: 'bold', color: '#0B0F26' },
+  emptyActivitySub: { fontSize: 12, color: '#64748B', textAlign: 'center', lineHeight: 18, maxWidth: 280 },
+  firstLeadBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#4F75FF', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, marginTop: 8 },
+  firstLeadBtnText: { color: '#FFFFFF', fontSize: 12, fontWeight: 'bold' },
+  activityItem: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+  activityIconCircle: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
+  activityItemTitle: { fontSize: 13, fontWeight: '700', color: '#0B0F26' },
+  activityItemDesc: { fontSize: 11, color: '#64748B' },
+  activityTime: { fontSize: 10, color: '#94A3B8' }
 });

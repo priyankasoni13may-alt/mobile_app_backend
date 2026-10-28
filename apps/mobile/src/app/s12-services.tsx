@@ -15,6 +15,7 @@ import {
   TrendingUp,
   Cpu
 } from 'lucide-react-native';
+import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function ServicesCatalogueScreen() {
   const router = useRouter();
@@ -27,7 +28,7 @@ export default function ServicesCatalogueScreen() {
       category: 'SHARED',
       categoryName: 'Shared Diagnostic',
       price: '₹37,000',
-      badgeColor: '#5B8EE2',
+      badgeColor: '#4F75FF',
       tagline: 'Comprehensive 360° audit of marketing funnel, brand, and core IT infrastructure.',
       problemSolved: 'Identifies why conversion has stalled and where tech debt is hurting growth.',
       icp: 'Companies ($1M - $25M revenue) planning major digital expansion.'
@@ -38,7 +39,7 @@ export default function ServicesCatalogueScreen() {
       category: 'LUMORA',
       categoryName: 'Lumora Growth',
       price: '₹1,50,000 / mo',
-      badgeColor: '#5B8EE2',
+      badgeColor: '#EC4899',
       tagline: 'Full-funnel demand generation, paid ads CRO, and creative experimentation squad.',
       problemSolved: 'Fixes high customer acquisition costs (CAC) and inconsistent inbound leads.',
       icp: 'D2C and B2B high-ticket clients needing profitable scalability.'
@@ -49,7 +50,7 @@ export default function ServicesCatalogueScreen() {
       category: 'CYPHER',
       categoryName: 'Cypher Swift Tech',
       price: '₹3,50,000',
-      badgeColor: '#38BDF8',
+      badgeColor: '#8B5CF6',
       tagline: 'End-to-end deployment of conversational AI voice/text agents with ERP/CRM workflows.',
       problemSolved: 'Eliminates 70% of routine customer support tickets and dispatch calls.',
       icp: 'Logistics, healthcare clinics, and customer support heavy mid-market operations.'
@@ -60,7 +61,7 @@ export default function ServicesCatalogueScreen() {
       category: 'CYPHER',
       categoryName: 'Cypher Swift Tech',
       price: '₹5,00,000',
-      badgeColor: '#38BDF8',
+      badgeColor: '#4F75FF',
       tagline: 'Production-ready Next.js web consoles and React Native iOS/Android mobile apps.',
       problemSolved: 'Overcomes legacy portal tech debt with clean architecture and zero bugs.',
       icp: 'Startups and scale-ups shipping high-performance digital products.'
@@ -104,7 +105,7 @@ export default function ServicesCatalogueScreen() {
             style={styles.card}
           >
             <View style={styles.cardHeader}>
-              <View style={[styles.badge, { backgroundColor: `${svc.badgeColor}20`, borderColor: `${svc.badgeColor}40` }]}>
+              <View style={[styles.badge, { backgroundColor: `${svc.badgeColor}15`, borderColor: `${svc.badgeColor}30` }]}>
                 <Text style={[styles.badgeText, { color: svc.badgeColor }]}>{svc.categoryName}</Text>
               </View>
               <Text style={styles.priceText}>{svc.price}</Text>
@@ -120,33 +121,35 @@ export default function ServicesCatalogueScreen() {
 
             <View style={styles.cardFooter}>
               <Text style={styles.ctaText}>View Pitch Guide & Questions</Text>
-              <ChevronRight size={16} color="#5B8EE2" />
+              <ChevronRight size={16} color="#4F75FF" />
             </View>
           </TouchableOpacity>
         ))}
+
+        <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
-  filterRow: { flexDirection: 'row', padding: 12, backgroundColor: '#0B1026', borderBottomWidth: 1, borderBottomColor: '#1E294B', gap: 6 },
-  pill: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16, backgroundColor: '#101735', borderWidth: 1, borderColor: '#1E294B' },
-  pillActive: { backgroundColor: '#5B8EE2', borderColor: '#5B8EE2' },
-  pillText: { fontSize: 11, fontWeight: 'bold', color: '#94A3B8' },
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  filterRow: { flexDirection: 'row', padding: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#EEF2F6', gap: 8 },
+  pill: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: '#F1F5F9', borderWidth: 1, borderColor: '#E2E8F0' },
+  pillActive: { backgroundColor: '#4F75FF', borderColor: '#4F75FF' },
+  pillText: { fontSize: 11, fontWeight: 'bold', color: '#64748B' },
   pillTextActive: { color: '#FFFFFF' },
-  listContent: { padding: 14, paddingBottom: 60, gap: 14 },
-  card: { backgroundColor: '#0B1026', borderRadius: 14, borderWidth: 1, borderColor: '#1E294B', padding: 16 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4, borderWidth: 1 },
-  badgeText: { fontSize: 9, fontWeight: 'bold' },
-  priceText: { fontSize: 14, fontWeight: '800', color: '#FFFFFF' },
-  cardTitle: { fontSize: 15, fontWeight: 'bold', color: '#FFFFFF' },
-  cardTagline: { fontSize: 12, color: '#94A3B8', marginTop: 4, lineHeight: 16 },
-  icpBox: { backgroundColor: '#101735', padding: 10, borderRadius: 8, marginTop: 10, borderWidth: 1, borderColor: '#1E294B' },
+  listContent: { padding: 16, paddingBottom: 60, gap: 14 },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#EEF2F6', padding: 18, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1 },
+  badgeText: { fontSize: 10, fontWeight: 'bold' },
+  priceText: { fontSize: 15, fontWeight: '800', color: '#0B0F26' },
+  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#0B0F26', lineHeight: 22 },
+  cardTagline: { fontSize: 12, color: '#64748B', marginTop: 4, lineHeight: 18 },
+  icpBox: { backgroundColor: '#F8FAFC', padding: 12, borderRadius: 10, marginTop: 12, borderWidth: 1, borderColor: '#EEF2F6' },
   icpLabel: { fontSize: 10, fontWeight: 'bold', color: '#64748B', textTransform: 'uppercase' },
-  icpValue: { fontSize: 11, color: '#E2E8F0', marginTop: 2 },
-  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#101735' },
-  ctaText: { fontSize: 12, fontWeight: 'bold', color: '#5B8EE2' }
+  icpValue: { fontSize: 12, color: '#334155', marginTop: 2, lineHeight: 17 },
+  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#EEF2F6' },
+  ctaText: { fontSize: 12, fontWeight: 'bold', color: '#4F75FF' }
 });

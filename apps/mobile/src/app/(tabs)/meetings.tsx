@@ -16,6 +16,8 @@ import {
   AlertCircle,
   Plus
 } from 'lucide-react-native';
+import { PoweredByFooter } from '../../components/PoweredByFooter';
+import { LumoraButton } from '../../components/LumoraButton';
 
 export default function MeetingsTabScreen() {
   const router = useRouter();
@@ -52,7 +54,7 @@ export default function MeetingsTabScreen() {
         {filteredMeetings.length === 0 ? (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconCircle}>
-              <Calendar size={36} color="#64748B" />
+              <Calendar size={36} color="#4F75FF" />
             </View>
             <Text style={styles.emptyTitle}>
               {activeTab === 'UPCOMING' ? 'No Upcoming Meetings' : 'No Past Meetings'}
@@ -63,14 +65,14 @@ export default function MeetingsTabScreen() {
                 : 'Completed discovery calls and recorded qualification outcomes will be archived here.'}
             </Text>
             {activeTab === 'UPCOMING' && (
-              <TouchableOpacity
-                activeOpacity={0.85}
-                onPress={() => router.push('/s18-book-meeting')}
-                style={styles.bookBtn}
-              >
-                <Plus size={18} color="#FFFFFF" />
-                <Text style={styles.bookBtnText}>Book Discovery Meeting</Text>
-              </TouchableOpacity>
+              <View style={{ width: '100%', maxWidth: 260, marginTop: 8 }}>
+                <LumoraButton
+                  title="Book Discovery Meeting"
+                  onPress={() => router.push('/s18-book-meeting')}
+                  icon={<Plus size={18} color="#FFFFFF" />}
+                  size="md"
+                />
+              </View>
             )}
           </View>
         ) : (
@@ -81,20 +83,20 @@ export default function MeetingsTabScreen() {
                   <Text style={styles.meetingTitle}>{m.title}</Text>
                   <Text style={styles.companyName}>{m.companyName}</Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: m.status === 'COMPLETED' ? '#10B98120' : '#38BDF820' }]}>
-                  <Text style={[styles.statusText, { color: m.status === 'COMPLETED' ? '#10B981' : '#38BDF8' }]}>
+                <View style={[styles.statusBadge, { backgroundColor: m.status === 'COMPLETED' ? '#10B98118' : '#4F75FF15' }]}>
+                  <Text style={[styles.statusText, { color: m.status === 'COMPLETED' ? '#10B981' : '#4F75FF' }]}>
                     {m.status}
                   </Text>
                 </View>
               </View>
 
               <View style={styles.metaRow}>
-                <Clock size={13} color="#94A3B8" />
+                <Clock size={13} color="#64748B" />
                 <Text style={styles.metaText}>{m.scheduledAt} • {m.duration}</Text>
               </View>
 
               <View style={styles.metaRow}>
-                {m.mode === 'ONLINE' ? <Video size={13} color="#38BDF8" /> : <MapPin size={13} color="#5B8EE2" />}
+                {m.mode === 'ONLINE' ? <Video size={13} color="#4F75FF" /> : <MapPin size={13} color="#8B5CF6" />}
                 <Text style={styles.metaText}>{m.linkOrLocation}</Text>
               </View>
 
@@ -119,37 +121,36 @@ export default function MeetingsTabScreen() {
             </View>
           ))
         )}
+        <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
-  tabBar: { flexDirection: 'row', backgroundColor: '#0B1026', padding: 8, borderBottomWidth: 1, borderBottomColor: '#1E294B', gap: 8 },
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  tabBar: { flexDirection: 'row', backgroundColor: '#FFFFFF', padding: 8, borderBottomWidth: 1, borderBottomColor: '#EEF2F6', gap: 8 },
   tabBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
-  tabBtnActive: { backgroundColor: '#132438' },
-  tabBtnText: { fontSize: 12, color: '#94A3B8', fontWeight: '600' },
-  tabBtnTextActive: { color: '#5B8EE2', fontWeight: 'bold' },
+  tabBtnActive: { backgroundColor: '#F1F5F9' },
+  tabBtnText: { fontSize: 12, color: '#64748B', fontWeight: '600' },
+  tabBtnTextActive: { color: '#4F75FF', fontWeight: 'bold' },
   content: { padding: 16, paddingBottom: 80, gap: 12 },
   emptyContainer: { alignItems: 'center', justifyContent: 'center', paddingVertical: 60, paddingHorizontal: 20, gap: 12 },
-  emptyIconCircle: { width: 72, height: 72, borderRadius: 36, backgroundColor: '#132438', alignItems: 'center', justifyContent: 'center' },
-  emptyTitle: { fontSize: 17, fontWeight: 'bold', color: '#FFFFFF' },
-  emptySubtitle: { fontSize: 12, color: '#94A3B8', textAlign: 'center', lineHeight: 18, maxWidth: 300 },
-  bookBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#5B8EE2', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 10, marginTop: 8 },
-  bookBtnText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 13 },
-  meetingCard: { backgroundColor: '#0B1026', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#1E294B', gap: 8 },
+  emptyIconCircle: { width: 72, height: 72, borderRadius: 36, backgroundColor: '#EFF6FF', alignItems: 'center', justifyContent: 'center' },
+  emptyTitle: { fontSize: 17, fontWeight: 'bold', color: '#0B0F26' },
+  emptySubtitle: { fontSize: 12, color: '#64748B', textAlign: 'center', lineHeight: 18, maxWidth: 300 },
+  meetingCard: { backgroundColor: '#FFFFFF', borderRadius: 14, padding: 16, borderWidth: 1, borderColor: '#EEF2F6', gap: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 3, elevation: 1 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  meetingTitle: { fontSize: 14, fontWeight: 'bold', color: '#FFFFFF', lineHeight: 18 },
+  meetingTitle: { fontSize: 14, fontWeight: 'bold', color: '#0B0F26', lineHeight: 18 },
   companyName: { fontSize: 11, color: '#64748B', marginTop: 2 },
-  statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4 },
+  statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
   statusText: { fontSize: 10, fontWeight: '800' },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  metaText: { fontSize: 12, color: '#CBD5E1' },
-  outcomeBox: { backgroundColor: '#132438', padding: 10, borderRadius: 8, marginTop: 4 },
+  metaText: { fontSize: 12, color: '#334155' },
+  outcomeBox: { backgroundColor: '#F8FAFC', padding: 10, borderRadius: 8, marginTop: 4, borderWidth: 1, borderColor: '#EEF2F6' },
   outcomeLabel: { fontSize: 10, color: '#64748B', fontWeight: 'bold', textTransform: 'uppercase' },
   outcomeText: { fontSize: 12, color: '#10B981', marginTop: 2, fontWeight: '600' },
-  actionRow: { borderTopWidth: 1, borderTopColor: '#1E294B', paddingTop: 10, marginTop: 4, flexDirection: 'row', justifyContent: 'flex-end' },
+  actionRow: { borderTopWidth: 1, borderTopColor: '#EEF2F6', paddingTop: 10, marginTop: 4, flexDirection: 'row', justifyContent: 'flex-end' },
   outcomeBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#10B98115', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
   outcomeBtnText: { color: '#10B981', fontSize: 12, fontWeight: 'bold' }
 });

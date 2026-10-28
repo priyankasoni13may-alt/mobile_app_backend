@@ -11,11 +11,12 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { CheckCircle2, XCircle, HelpCircle } from 'lucide-react-native';
 import { apiClient } from '../services/api';
+import { PoweredByFooter } from '../components/PoweredByFooter';
 
 export default function QualificationFormScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const leadId = (params.leadId as string) || 'lead-03-finlink';
+  const leadId = (params.leadId as string) || '';
 
   const [decisionMaker, setDecisionMaker] = useState('');
   const [urgency, setUrgency] = useState('');
@@ -30,10 +31,12 @@ export default function QualificationFormScreen() {
     }
 
     try {
-      await apiClient.updateLead(leadId, {
-        stage: isQualified ? 'QUALIFIED' : 'UNQUALIFIED',
-        unqualifiedReason: !isQualified ? unqualifiedReason : undefined
-      });
+      if (leadId) {
+        await apiClient.updateLead(leadId, {
+          stage: isQualified ? 'QUALIFIED' : 'UNQUALIFIED',
+          unqualifiedReason: !isQualified ? unqualifiedReason : undefined
+        });
+      }
 
       Alert.alert(
         'Lead Qualification Recorded',
@@ -62,9 +65,11 @@ export default function QualificationFormScreen() {
           <TextInput
             value={decisionMaker}
             onChangeText={setDecisionMaker}
-            placeholder="e.g. Yes — VP / CTO direct"
-            placeholderTextColor="#64748B"
+            placeholder="Enter decision-maker authority details"
+            placeholderTextColor="#94A3B8"
             style={styles.input}
+            cursorColor="#4F75FF"
+            selectionColor="#4F75FF"
           />
         </View>
 
@@ -73,9 +78,11 @@ export default function QualificationFormScreen() {
           <TextInput
             value={urgency}
             onChangeText={setUrgency}
-            placeholder="e.g. High — next 30 days"
-            placeholderTextColor="#64748B"
+            placeholder="Enter project timeline or urgency"
+            placeholderTextColor="#94A3B8"
             style={styles.input}
+            cursorColor="#4F75FF"
+            selectionColor="#4F75FF"
           />
         </View>
 
@@ -84,9 +91,11 @@ export default function QualificationFormScreen() {
           <TextInput
             value={budgetRange}
             onChangeText={setBudgetRange}
-            placeholder="e.g. ₹35,000 - ₹5,00,000"
-            placeholderTextColor="#64748B"
+            placeholder="Enter estimated budget range"
+            placeholderTextColor="#94A3B8"
             style={styles.input}
+            cursorColor="#4F75FF"
+            selectionColor="#4F75FF"
           />
         </View>
 
@@ -95,9 +104,11 @@ export default function QualificationFormScreen() {
           <TextInput
             value={currentSolution}
             onChangeText={setCurrentSolution}
-            placeholder="e.g. In-house manual or agency"
-            placeholderTextColor="#64748B"
+            placeholder="Enter current vendor or solution"
+            placeholderTextColor="#94A3B8"
             style={styles.input}
+            cursorColor="#4F75FF"
+            selectionColor="#4F75FF"
           />
         </View>
 
@@ -106,9 +117,11 @@ export default function QualificationFormScreen() {
           <TextInput
             value={unqualifiedReason}
             onChangeText={setUnqualifiedReason}
-            placeholder="e.g. Budget too low, no executive buy-in, wrong industry..."
-            placeholderTextColor="#64748B"
+            placeholder="Enter reason why lead is unqualified"
+            placeholderTextColor="#94A3B8"
             style={styles.textArea}
+            cursorColor="#4F75FF"
+            selectionColor="#4F75FF"
             multiline
           />
         </View>
@@ -131,24 +144,26 @@ export default function QualificationFormScreen() {
           </TouchableOpacity>
         </View>
       </View>
+
+      <PoweredByFooter style={{ marginTop: 24, marginBottom: 10 }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#070B19' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16, paddingBottom: 60 },
   header: { marginBottom: 20 },
-  title: { fontSize: 20, fontWeight: 'bold', color: '#FFFFFF' },
-  subtitle: { fontSize: 12, color: '#94A3B8', marginTop: 4 },
+  title: { fontSize: 22, fontWeight: 'bold', color: '#0B0F26' },
+  subtitle: { fontSize: 13, color: '#64748B', marginTop: 4 },
   form: { gap: 14 },
-  inputGroup: { gap: 4 },
-  label: { fontSize: 11, fontWeight: '600', color: '#CBD5E1' },
-  input: { backgroundColor: '#0B1026', borderWidth: 1, borderColor: '#1E294B', borderRadius: 8, paddingHorizontal: 12, height: 44, color: '#FFFFFF', fontSize: 13 },
-  textArea: { backgroundColor: '#0B1026', borderWidth: 1, borderColor: '#1E294B', borderRadius: 8, padding: 10, color: '#FFFFFF', fontSize: 13, height: 60, textAlignVertical: 'top' },
+  inputGroup: { gap: 6 },
+  label: { fontSize: 12, fontWeight: '600', color: '#334155' },
+  input: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 10, paddingHorizontal: 12, height: 48, color: '#0B0F26', fontSize: 13 },
+  textArea: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 10, padding: 12, color: '#0B0F26', fontSize: 13, height: 72, textAlignVertical: 'top' },
   btnRow: { flexDirection: 'row', gap: 10, marginTop: 14 },
-  unqualifiedBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: 'rgba(239, 68, 68, 0.15)', height: 48, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.3)' },
-  unqualifiedText: { fontSize: 12, fontWeight: 'bold', color: '#EF4444' },
-  qualifiedBtn: { flex: 1.3, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#10B981', height: 48, borderRadius: 10 },
+  unqualifiedBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#FEF2F2', height: 48, borderRadius: 24, borderWidth: 1, borderColor: '#FEE2E2' },
+  unqualifiedText: { fontSize: 13, fontWeight: 'bold', color: '#EF4444' },
+  qualifiedBtn: { flex: 1.3, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#10B981', height: 48, borderRadius: 24 },
   qualifiedText: { fontSize: 13, fontWeight: 'bold', color: '#FFFFFF' }
 });
