@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { View } from 'react-native';
+import { apiClient } from '../services/api';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,6 +15,11 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout() {
+  useEffect(() => {
+    // Pre-warm Render backend on app start to prevent cold starts
+    apiClient.getHealth().catch(() => {});
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>

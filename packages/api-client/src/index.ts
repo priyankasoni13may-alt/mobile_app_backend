@@ -79,13 +79,33 @@ export class LumoraApiClient {
       }
     }
 
-    let response = await fetch(url, {
-      ...options,
-      headers: {
-        ...headers,
-        ...(options.headers as Record<string, string>)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        ...options,
+        signal: options.signal || controller.signal,
+        headers: {
+          ...headers,
+          ...(options.headers as Record<string, string>)
+        }
+      });
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        throw new ApiError({
+          statusCode: 408,
+          code: 'REQUEST_TIMEOUT',
+          message: 'Server connection timed out. Please check connection and retry.',
+          request_id: headers['X-Request-Id'],
+          timestamp: new Date().toISOString()
+        });
       }
-    });
+      throw err;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     // Check for 401 and try refresh if configured
     if (response.status === 401 && this.config.getRefreshToken && this.config.onTokenRefresh) {
