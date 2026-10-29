@@ -16,11 +16,12 @@ export class AgreementsService {
     const acceptances = await this.prisma.agreementAcceptance.findMany({
       where: { userId }
     });
-    const acceptedIds = new Set(acceptances.map((a) => a.agreementId));
+    const acceptanceMap = new Map(acceptances.map((a) => [a.agreementId, a.acceptedAt]));
 
     return agreements.map((agr) => ({
       ...agr,
-      accepted: acceptedIds.has(agr.id)
+      accepted: acceptanceMap.has(agr.id),
+      acceptedAt: acceptanceMap.get(agr.id) || null
     }));
   }
 
