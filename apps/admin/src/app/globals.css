@@ -11,8 +11,8 @@
 
 body {
   font-family: var(--font-inter);
-  background-color: #070B19;
-  color: #F1F5F9;
+  background-color: #F8FAFC;
+  color: #0F172A;
   min-height: 100vh;
 }
 
@@ -26,12 +26,40 @@ h1, h2, h3, h4, h5, h6 {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B1026;
+  background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1E294B;
+  background: #CBD5E1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #5B8EE2;
+  background: #4F75FF;
+}
+
+/* Executive light theme color mappings */
+@layer utilities {
+  .bg-\[\#070B19\] {
+    background-color: #F8FAFC !important;
+  }
+  .bg-\[\#0B1026\] {
+    background-color: #FFFFFF !important;
+  }
+  .bg-\[\#101735\] {
+    background-color: #FFFFFF !important;
+  }
+  .bg-\[\#0B0F26\] {
+    background-color: #FFFFFF !important;
+  }
+  .bg-\[\#131B38\] {
+    background-color: #FFFFFF !important;
+  }
+  .border-\[\#1E294B\] {
+    border-color: #E2E8F0 !important;
+  }
+  .border-\[\#101735\] {
+    border-color: #E2E8F0 !important;
+  }
+  .divide-\[\#1E294B\] > :not([hidden]) ~ :not([hidden]) {
+    border-color: #F1F5F9 !important;
+  }
 }
