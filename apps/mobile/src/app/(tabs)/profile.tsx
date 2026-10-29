@@ -21,6 +21,7 @@ import {
   Lock
 } from 'lucide-react-native';
 import { useAuthStore } from '../../store/authStore';
+import { AppHeader } from '../../components/AppHeader';
 
 export default function ProfileSettingsScreen() {
   const router = useRouter();
@@ -42,7 +43,14 @@ export default function ProfileSettingsScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
+      <AppHeader
+        title="Partner Profile"
+        subtitle="Network Accreditation & Credentials"
+        showLogo={false}
+        showNotifications={true}
+      />
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Profile Header Card */}
       <View style={styles.profileCard}>
         <View style={styles.avatarBox}>
@@ -149,6 +157,7 @@ export default function ProfileSettingsScreen() {
         <Text style={styles.logoutText}>Sign Out of Partner Network</Text>
       </TouchableOpacity>
     </ScrollView>
+    </View>
   );
 }
 

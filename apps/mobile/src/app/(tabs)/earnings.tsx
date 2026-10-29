@@ -17,13 +17,21 @@ import {
   ShieldCheck,
   FileSpreadsheet
 } from 'lucide-react-native';
+import { AppHeader } from '../../components/AppHeader';
 
 export default function EarningsTabScreen() {
   const router = useRouter();
   const [period, setPeriod] = useState('ALL_TIME');
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
+      <AppHeader
+        title="Earnings & Ledger"
+        subtitle="Commissions & Retainer Payouts"
+        showLogo={false}
+        showNotifications={true}
+      />
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Total Earnings Balance Header */}
       <View style={styles.balanceCard}>
         <Text style={styles.balanceLabel}>Total Qualified Earnings</Text>
@@ -123,6 +131,7 @@ export default function EarningsTabScreen() {
         </View>
       </View>
     </ScrollView>
+    </View>
   );
 }
 

@@ -24,6 +24,7 @@ import {
 } from 'lucide-react-native';
 import { apiClient } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
+import { AppHeader } from '../../components/AppHeader';
 
 function formatLeadDate(dateVal?: string | Date | null): string {
   if (!dateVal) return 'Recently';
@@ -171,6 +172,14 @@ export default function LeadsTabScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Branded Executive Top Bar */}
+      <AppHeader
+        title="Prospects Pipeline"
+        subtitle="Lead Management & Qualification"
+        showLogo={false}
+        showNotifications={true}
+      />
+
       {/* Account Restriction Notice (if partner is not active) */}
       {!isAccountActive && (
         <View style={styles.restrictionBanner}>
@@ -481,48 +490,47 @@ const styles = StyleSheet.create({
   addLeadBtnText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 13 },
   leadCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 16,
-    borderWidth: 1,
-    borderColor: '#EEF2F6',
-    gap: 8,
+    borderWidth: 1.5,
+    borderColor: '#EDF2F7',
+    gap: 10,
     shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 4
+    alignItems: 'flex-start'
   },
-  companyName: { fontSize: 16, fontWeight: '700', color: '#0B0F26' },
-  leadWebsite: { fontSize: 12, color: '#4F75FF', marginTop: 2, fontWeight: '500' },
+  companyName: { fontSize: 17, fontWeight: '800', color: '#0B0F26', letterSpacing: -0.3 },
+  leadWebsite: { fontSize: 12, color: '#4F75FF', marginTop: 2, fontWeight: '600' },
   stageBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
+    gap: 5,
+    paddingHorizontal: 9,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 8,
     borderWidth: 1
   },
-  stageText: { fontSize: 11, fontWeight: '700' },
-  contactRow: { flexDirection: 'row', gap: 6, alignItems: 'center' },
-  contactLabel: { fontSize: 12, color: '#64748B', width: 60, fontWeight: '500' },
-  contactValue: { fontSize: 12, color: '#1E293B', flex: 1, fontWeight: '600' },
-  needRow: { flexDirection: 'row', gap: 6, marginTop: 2 },
-  needValue: { fontSize: 12, color: '#475569', flex: 1, lineHeight: 17 },
+  stageText: { fontSize: 11, fontWeight: '800' },
+  contactRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  contactLabel: { fontSize: 12, color: '#64748B', width: 62, fontWeight: '600' },
+  contactValue: { fontSize: 12, color: '#0F172A', flex: 1, fontWeight: '700' },
+  needRow: { flexDirection: 'row', gap: 8, marginTop: 2 },
+  needValue: { fontSize: 12, color: '#475569', flex: 1, lineHeight: 18 },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: '#F8FAFC',
     paddingTop: 10,
-    marginTop: 4
+    marginTop: 2
   },
   dateLabel: { fontSize: 11, color: '#94A3B8' },
   actionShortcuts: { flexDirection: 'row', gap: 8 },

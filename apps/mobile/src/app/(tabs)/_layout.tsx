@@ -17,10 +17,7 @@ export default function TabLayout() {
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <Tabs
         screenOptions={{
-          headerStyle: { backgroundColor: '#FFFFFF' },
-          headerShadowVisible: false,
-          headerTintColor: '#0B0F26',
-          headerTitleStyle: { fontWeight: '800', fontSize: 17, color: '#0B0F26' },
+          headerShown: false,
           tabBarStyle: {
             backgroundColor: '#FFFFFF',
             borderTopColor: '#EEF2F6',

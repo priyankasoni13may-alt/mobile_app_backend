@@ -17,6 +17,7 @@ import {
   Plus
 } from 'lucide-react-native';
 import { LumoraButton } from '../../components/LumoraButton';
+import { AppHeader } from '../../components/AppHeader';
 
 export default function MeetingsTabScreen() {
   const router = useRouter();
@@ -29,6 +30,14 @@ export default function MeetingsTabScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Branded Executive Top Bar */}
+      <AppHeader
+        title="Discovery Meetings"
+        subtitle="Presentations & Client Calendar"
+        showLogo={false}
+        showNotifications={true}
+      />
+
       {/* Tab Switcher */}
       <View style={styles.tabBar}>
         <TouchableOpacity

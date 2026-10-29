@@ -29,6 +29,7 @@ export default function RootLayout() {
             headerStyle: { backgroundColor: '#FFFFFF' },
             headerShadowVisible: false,
             headerTintColor: '#0B0F26',
+            headerTitleAlign: 'center',
             headerTitleStyle: { fontWeight: '800', fontSize: 16, color: '#0B0F26' },
             contentStyle: { backgroundColor: '#FFFFFF' },
             animation: 'slide_from_right'
