@@ -28,6 +28,7 @@ import {
 
 export interface ApiClientConfig {
   baseUrl: string;
+  timeoutMs?: number;
   getAccessToken?: () => string | null | Promise<string | null>;
   getRefreshToken?: () => string | null | Promise<string | null>;
   onTokenRefresh?: (newAccessToken: string, newRefreshToken?: string) => void | Promise<void>;
@@ -79,8 +80,9 @@ export class LumoraApiClient {
       }
     }
 
+    const timeoutMs = this.config.timeoutMs ?? 60000;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     let response: Response;
     try {
@@ -97,7 +99,7 @@ export class LumoraApiClient {
         throw new ApiError({
           statusCode: 408,
           code: 'REQUEST_TIMEOUT',
-          message: 'Server connection timed out. Please check connection and retry.',
+          message: 'Server connection timed out while establishing link. Please tap retry.',
           request_id: headers['X-Request-Id'],
           timestamp: new Date().toISOString()
         });

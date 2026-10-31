@@ -9,7 +9,7 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Lock, Mail, Eye, EyeOff, X } from 'lucide-react-native';
+import { Lock, Mail, Eye, EyeOff, X, RefreshCw } from 'lucide-react-native';
 import { apiClient } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { PoweredByFooter } from '../components/PoweredByFooter';
@@ -69,7 +69,15 @@ export default function LoginScreen() {
       }
     } catch (err: any) {
       clearTimeout(slowTimer);
-      setErrorMsg(err.message || 'Incorrect credentials. Check details or try again.');
+      const isTimeout =
+        err.message?.toLowerCase().includes('timed out') ||
+        err.message?.toLowerCase().includes('timeout') ||
+        err.code === 'REQUEST_TIMEOUT';
+      if (isTimeout) {
+        setErrorMsg('Server was establishing connection. It is active now — please tap Sign In again.');
+      } else {
+        setErrorMsg(err.message || 'Incorrect credentials. Check details or try again.');
+      }
     } finally {
       clearTimeout(slowTimer);
       setLoading(false);
@@ -104,11 +112,19 @@ export default function LoginScreen() {
           <Text style={styles.subtitle}>Sign in to access your leads, meetings, and incentives</Text>
         </View>
 
-        {/* Error Message Alert */}
+        {/* Error Message Alert with Tap to Retry */}
         {errorMsg ? (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorText}>{errorMsg}</Text>
-          </View>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={handleLogin}
+            style={styles.errorBanner}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <RefreshCw size={13} color="#DC2626" />
+              <Text style={styles.errorText}>{errorMsg}</Text>
+            </View>
+            <Text style={styles.retryHintText}>Tap here to retry Sign In</Text>
+          </TouchableOpacity>
         ) : null}
 
         {/* Input Fields */}
@@ -225,8 +241,9 @@ const styles = StyleSheet.create({
   brandTitle: { fontSize: 24, fontWeight: '900', color: '#0B0F26', letterSpacing: 0.5, textAlign: 'center', marginTop: 8 },
   gradientLineBox: { width: '100%', alignItems: 'center' },
   subtitle: { fontSize: 13, color: '#64748B', textAlign: 'center', marginTop: 4 },
-  errorBanner: { padding: 12, backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FCA5A5', borderRadius: 10, marginBottom: 16 },
-  errorText: { fontSize: 12, color: '#DC2626', fontWeight: '500', textAlign: 'center' },
+  errorBanner: { padding: 12, backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FCA5A5', borderRadius: 10, marginBottom: 16, gap: 4 },
+  errorText: { fontSize: 12, color: '#DC2626', fontWeight: '600', textAlign: 'center', flexShrink: 1 },
+  retryHintText: { fontSize: 11, color: '#4F75FF', fontWeight: '800', textAlign: 'center', marginTop: 2, textDecorationLine: 'underline' },
   slowHintBox: { paddingVertical: 4, alignItems: 'center' },
   slowHintText: { fontSize: 11, color: '#6366F1', fontWeight: '600', textAlign: 'center' },
   formCard: {

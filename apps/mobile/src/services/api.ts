@@ -14,6 +14,7 @@ const API_BASE_URL =
 
 export const apiClient = new LumoraApiClient({
   baseUrl: API_BASE_URL,
+  timeoutMs: 60000,
   getAccessToken: () => useAuthStore.getState().token,
   getRefreshToken: () => useAuthStore.getState().refreshToken,
   onTokenRefresh: (newAccess, newRefresh) => {
