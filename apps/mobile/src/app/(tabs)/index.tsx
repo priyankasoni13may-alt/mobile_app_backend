@@ -126,7 +126,7 @@ export default function HomeDashboardScreen() {
       value: pendingCount,
       target: 5,
       pct: Math.min(100, Math.round((pendingCount / 5) * 100)),
-      badgeText: pendingCount > 0 ? `${pendingCount} In Audit` : 'All Clear',
+      badgeText: `${Math.min(100, Math.round((pendingCount / 5) * 100))}%`,
       subtitle: 'Awaiting Compliance',
       color: '#D97706',
       bgColor: '#FFFBEB',
@@ -138,7 +138,7 @@ export default function HomeDashboardScreen() {
       value: clientCount,
       target: 15,
       pct: Math.min(100, Math.round((clientCount / 15) * 100)),
-      badgeText: clientCount > 0 ? `${clientCount} Won` : 'Target 15',
+      badgeText: `${Math.min(100, Math.round((clientCount / 15) * 100))}%`,
       subtitle: 'Retainers & Closures',
       color: '#DB2777',
       bgColor: '#FDF2F8',
@@ -227,8 +227,8 @@ export default function HomeDashboardScreen() {
             </View>
             <View style={styles.metaDivider} />
             <View style={styles.metaChip}>
-              <Text style={styles.metaChipLabel}>QUARTER TARGET</Text>
-              <Text style={styles.metaChipVal}>30 Qualified Deals</Text>
+              <Text style={styles.metaChipLabel}>Q1 GOAL</Text>
+              <Text style={styles.metaChipVal}>30 Deals</Text>
             </View>
             <View style={styles.metaDivider} />
             <View style={styles.metaChip}>
@@ -256,7 +256,7 @@ export default function HomeDashboardScreen() {
             <View style={styles.sectionIconCircle}>
               <TrendingUp size={14} color="#4F75FF" />
             </View>
-            <Text style={styles.sectionTitle}>Performance Activity Benchmarks</Text>
+            <Text style={styles.sectionTitle} numberOfLines={1}>Activity Benchmarks</Text>
           </View>
           <TouchableOpacity
             activeOpacity={0.7}
@@ -585,12 +585,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 4
+    marginTop: 4,
+    gap: 8
   },
   sectionTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8
+    gap: 6,
+    flex: 1
   },
   sectionIconCircle: {
     width: 24,
@@ -598,19 +600,22 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: '#EEF2FF',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    flexShrink: 0
   },
   sectionTitle: {
     fontSize: 12,
     fontWeight: '800',
     color: '#0B0F26',
     textTransform: 'uppercase',
-    letterSpacing: 0.6
+    letterSpacing: 0.5,
+    flex: 1
   },
   sectionActionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3
+    gap: 2,
+    flexShrink: 0
   },
   sectionActionText: {
     fontSize: 11,

@@ -52,8 +52,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                   <Text style={styles.brandPillText}>NETWORK</Text>
                 </View>
               </View>
-              <Text style={styles.brandSub}>
-                {subtitle || 'Business Development Global'}
+              <Text style={styles.brandSub} numberOfLines={1} ellipsizeMode="tail">
+                {subtitle || 'Global Partner Network'}
               </Text>
             </View>
           </TouchableOpacity>
@@ -125,14 +125,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    marginRight: 8,
   },
   logoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
+    flex: 1,
   },
   brandTitleBox: {
     gap: 1,
+    flex: 1,
   },
   brandNameRow: {
     flexDirection: 'row',
@@ -180,7 +183,8 @@ const styles = StyleSheet.create({
   rightRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
+    flexShrink: 0,
   },
   liveStatusPill: {
     flexDirection: 'row',

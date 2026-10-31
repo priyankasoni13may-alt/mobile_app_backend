@@ -201,7 +201,9 @@ export default function LeadDetailScreen() {
           {/* Company Header Card */}
           <View style={styles.headerCard}>
             <View style={styles.stageRow}>
-              <Text style={styles.buText}>{lead.businessUnitName || 'Lumora Partner Network'}</Text>
+              <Text style={styles.buText} numberOfLines={1} ellipsizeMode="tail">
+                {lead.businessUnitName || 'Lumora Partner Network'}
+              </Text>
               <View
                 style={[
                   styles.stageBadge,
@@ -376,9 +378,31 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2
   },
-  stageRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  buText: { fontSize: 12, fontWeight: '700', color: '#64748B' },
-  stageBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, borderWidth: 1 },
+  stageRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6
+  },
+  buText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748B',
+    flex: 1,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3
+  },
+  stageBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    flexShrink: 0
+  },
   stageBadgeText: { fontSize: 11, fontWeight: '700' },
   companyName: { fontSize: 20, fontWeight: '800', color: '#0B0F26', marginTop: 2 },
   websiteText: { fontSize: 13, color: '#4F75FF', fontWeight: '600' },

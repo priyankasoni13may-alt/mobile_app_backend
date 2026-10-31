@@ -106,9 +106,9 @@ export default function TabLayout() {
       <TouchableOpacity
         activeOpacity={0.85}
         onPress={() => router.push('/s14-add-lead')}
-        style={[styles.fab, { bottom: Platform.OS === 'ios' ? 90 + insets.bottom : 80 }]}
+        style={[styles.fab, { bottom: Platform.OS === 'ios' ? 82 + insets.bottom : 74 }]}
       >
-        <Plus size={24} color="#FFFFFF" strokeWidth={2.5} />
+        <Plus size={22} color="#FFFFFF" strokeWidth={2.5} />
       </TouchableOpacity>
     </View>
   );
@@ -127,18 +127,18 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    right: 16,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#4F75FF',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#4F75FF',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 14,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 8,
     zIndex: 99
   }
 });
