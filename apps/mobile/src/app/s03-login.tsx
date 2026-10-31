@@ -27,7 +27,6 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [slowHint, setSlowHint] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   // Pre-warm the backend Render API when login screen opens to prevent cold-start delay
@@ -46,16 +45,9 @@ export default function LoginScreen() {
 
     setErrorMsg('');
     setLoading(true);
-    setSlowHint(false);
-
-    // If request takes longer than 2.5s (e.g. cold start), show reassurance
-    const slowTimer = setTimeout(() => {
-      setSlowHint(true);
-    }, 2500);
 
     try {
       const res = await apiClient.login({ identifier: finalIdentifier, password: finalPassword });
-      clearTimeout(slowTimer);
       if (res.data?.user && res.data.accessToken) {
         setAuth(
           res.data.accessToken,
@@ -68,7 +60,6 @@ export default function LoginScreen() {
         setErrorMsg('Invalid login response. Please retry.');
       }
     } catch (err: any) {
-      clearTimeout(slowTimer);
       const isTimeout =
         err.message?.toLowerCase().includes('timed out') ||
         err.message?.toLowerCase().includes('timeout') ||
@@ -79,9 +70,7 @@ export default function LoginScreen() {
         setErrorMsg(err.message || 'Incorrect credentials. Check details or try again.');
       }
     } finally {
-      clearTimeout(slowTimer);
       setLoading(false);
-      setSlowHint(false);
     }
   };
 
@@ -211,14 +200,6 @@ export default function LoginScreen() {
             style={{ marginTop: 8 }}
           />
 
-          {slowHint && (
-            <View style={styles.slowHintBox}>
-              <Text style={styles.slowHintText}>
-                ⚡ Connecting to secure cloud servers, please wait a moment...
-              </Text>
-            </View>
-          )}
-
           <View style={styles.registerRow}>
             <Text style={styles.registerText}>Don't have a partner account? </Text>
             <TouchableOpacity onPress={() => router.push('/s04-register')}>
@@ -244,8 +225,6 @@ const styles = StyleSheet.create({
   errorBanner: { padding: 12, backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FCA5A5', borderRadius: 10, marginBottom: 16, gap: 4 },
   errorText: { fontSize: 12, color: '#DC2626', fontWeight: '600', textAlign: 'center', flexShrink: 1 },
   retryHintText: { fontSize: 11, color: '#4F75FF', fontWeight: '800', textAlign: 'center', marginTop: 2, textDecorationLine: 'underline' },
-  slowHintBox: { paddingVertical: 4, alignItems: 'center' },
-  slowHintText: { fontSize: 11, color: '#6366F1', fontWeight: '600', textAlign: 'center' },
   formCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
