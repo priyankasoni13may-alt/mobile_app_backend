@@ -5,6 +5,7 @@ database
 infra
 docs
 tests
+landing-page
 
 # Dependencies and caches
 **/node_modules
