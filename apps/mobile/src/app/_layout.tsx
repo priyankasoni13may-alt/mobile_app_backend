@@ -43,12 +43,12 @@ export default function RootLayout() {
           <Stack.Screen name="s04-register" options={{ title: 'Join Partner Network' }} />
           <Stack.Screen name="s05-otp" options={{ title: 'OTP Verification' }} />
           <Stack.Screen name="s06-profile-setup" options={{ title: 'Profile Setup' }} />
-          <Stack.Screen name="s07-verification" options={{ title: 'Identity Verification' }} />
+          <Stack.Screen name="s07-verification" options={{ headerShown: false }} />
           <Stack.Screen name="s08-agreement" options={{ title: 'Code of Conduct' }} />
           <Stack.Screen name="s09-status" options={{ title: 'Application Status' }} />
           <Stack.Screen name="s10-training" options={{ title: 'Partner Training Hub' }} />
-          <Stack.Screen name="s12-services" options={{ title: 'Services Catalogue' }} />
-          <Stack.Screen name="s13-service-detail" options={{ title: 'Pitch Guide & ICP' }} />
+          <Stack.Screen name="s12-services" options={{ headerShown: false }} />
+          <Stack.Screen name="s13-service-detail" options={{ headerShown: false }} />
           <Stack.Screen name="s14-add-lead" options={{ title: 'Register New Prospect' }} />
           <Stack.Screen name="s15-duplicate-check" options={{ title: 'Duplicate Verification' }} />
           <Stack.Screen name="s16-lead-detail" options={{ title: 'Lead & Activity Timeline' }} />
