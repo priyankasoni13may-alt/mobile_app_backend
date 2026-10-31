@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
-  StyleSheet
+  StyleSheet,
+  RefreshControl
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import {
   Banknote,
   TrendingUp,
@@ -18,10 +19,68 @@ import {
   FileSpreadsheet
 } from 'lucide-react-native';
 import { AppHeader } from '../../components/AppHeader';
+import { EarningsSkeleton } from '../../components/Skeleton';
+import { apiClient } from '../../services/api';
 
 export default function EarningsTabScreen() {
   const router = useRouter();
-  const [period, setPeriod] = useState('ALL_TIME');
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [summary, setSummary] = useState({
+    totalEarned: '0',
+    pending: '0',
+    approved: '0',
+    paid: '0',
+    diagnosticCount: 0,
+    serviceCount: 0,
+    bonusTarget: 15,
+    bonusActual: 0,
+    bonusPct: 0
+  });
+
+  const loadSummary = useCallback(async () => {
+    try {
+      const res = await apiClient.getEarningsSummary();
+      if (res.data) {
+        const d = res.data;
+        const total = (Number(d.totalEarnedPaise || 0) / 100).toLocaleString('en-IN');
+        const pending = (Number(d.pendingPaise || 0) / 100).toLocaleString('en-IN');
+        const approved = (Number(d.approvedPaise || 0) / 100).toLocaleString('en-IN');
+        const paid = (Number(d.paidPaise || 0) / 100).toLocaleString('en-IN');
+        const target = d.bonusProgress?.target || 15;
+        const actual = d.bonusProgress?.actual || 0;
+        const pct = Math.min(100, Math.round((actual / target) * 100));
+
+        setSummary({
+          totalEarned: total,
+          pending,
+          approved,
+          paid,
+          diagnosticCount: d.diagnosticCount || 0,
+          serviceCount: d.serviceCount || 0,
+          bonusTarget: target,
+          bonusActual: actual,
+          bonusPct: pct
+        });
+      }
+    } catch (err) {
+      console.log('Failed to fetch earnings summary:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadSummary();
+    }, [loadSummary])
+  );
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadSummary();
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
@@ -31,106 +90,120 @@ export default function EarningsTabScreen() {
         showLogo={false}
         showNotifications={true}
       />
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Total Earnings Balance Header */}
-      <View style={styles.balanceCard}>
-        <Text style={styles.balanceLabel}>Total Qualified Earnings</Text>
-        <Text style={styles.balanceValue}>₹0</Text>
-        <Text style={styles.balanceSub}>0 Diagnostic Closures + 0 Service Retainers</Text>
-
-        <View style={styles.payoutStatusRow}>
-          <View style={styles.statusCol}>
-            <Text style={styles.statusColLabel}>Pending Review</Text>
-            <Text style={styles.statusColValueAmber}>₹0</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.statusCol}>
-            <Text style={styles.statusColLabel}>Approved</Text>
-            <Text style={styles.statusColValueGreen}>₹0</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.statusCol}>
-            <Text style={styles.statusColLabel}>Disbursed / Paid</Text>
-            <Text style={styles.statusColValue}>₹0</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Button to Open Immutable Transaction Ledger */}
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => router.push('/s25-earnings-ledger')}
-        style={styles.ledgerButton}
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4F75FF']} />}
       >
-        <View style={styles.ledgerBtnLeft}>
-          <View style={styles.ledgerIconCircle}>
-            <FileSpreadsheet size={18} color="#4F75FF" />
-          </View>
-          <View>
-            <Text style={styles.ledgerBtnTitle}>View Immutable Transaction Ledger</Text>
-            <Text style={styles.ledgerBtnSub}>Append-only audit trail with policy versions</Text>
-          </View>
-        </View>
-        <ArrowRight size={16} color="#94A3B8" />
-      </TouchableOpacity>
+        {loading && !refreshing ? (
+          <EarningsSkeleton />
+        ) : (
+          <>
+            {/* Total Earnings Balance Header */}
+            <View style={styles.balanceCard}>
+              <Text style={styles.balanceLabel}>Total Qualified Earnings</Text>
+              <Text style={styles.balanceValue}>₹{summary.totalEarned}</Text>
+              <Text style={styles.balanceSub}>
+                {summary.diagnosticCount} Diagnostic Closures + {summary.serviceCount} Service Retainers
+              </Text>
 
-      {/* Incentive Breakdown Summary */}
-      <View style={styles.breakdownCard}>
-        <Text style={styles.sectionHeading}>Incentive Structure Overview</Text>
+              <View style={styles.payoutStatusRow}>
+                <View style={styles.statusCol}>
+                  <Text style={styles.statusColLabel}>Pending Review</Text>
+                  <Text style={styles.statusColValueAmber}>₹{summary.pending}</Text>
+                </View>
+                <View style={styles.divider} />
+                <View style={styles.statusCol}>
+                  <Text style={styles.statusColLabel}>Approved</Text>
+                  <Text style={styles.statusColValueGreen}>₹{summary.approved}</Text>
+                </View>
+                <View style={styles.divider} />
+                <View style={styles.statusCol}>
+                  <Text style={styles.statusColLabel}>Disbursed / Paid</Text>
+                  <Text style={styles.statusColValue}>₹{summary.paid}</Text>
+                </View>
+              </View>
+            </View>
 
-        <View style={styles.tierItem}>
-          <View style={[styles.tierIconBox, { backgroundColor: '#EFF6FF' }]}>
-            <Banknote size={16} color="#4F75FF" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.tierTitle}>Productized Growth Diagnostic</Text>
-            <Text style={styles.tierSub}>₹1,000 fixed payout upon client payment verification</Text>
-          </View>
-          <Text style={styles.tierEarned}>₹0</Text>
-        </View>
+            {/* Button to Open Immutable Transaction Ledger */}
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => router.push('/s25-earnings-ledger')}
+              style={styles.ledgerButton}
+            >
+              <View style={styles.ledgerBtnLeft}>
+                <View style={styles.ledgerIconCircle}>
+                  <FileSpreadsheet size={18} color="#4F75FF" />
+                </View>
+                <View>
+                  <Text style={styles.ledgerBtnTitle}>View Immutable Transaction Ledger</Text>
+                  <Text style={styles.ledgerBtnSub}>Append-only audit trail with policy versions</Text>
+                </View>
+              </View>
+              <ArrowRight size={16} color="#94A3B8" />
+            </TouchableOpacity>
 
-        <View style={styles.tierItem}>
-          <View style={[styles.tierIconBox, { backgroundColor: '#FDF4FF' }]}>
-            <TrendingUp size={16} color="#EC4899" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.tierTitle}>Core Custom Software / Retainer</Text>
-            <Text style={styles.tierSub}>₹10,000 fixed or tiered percentage per service client</Text>
-          </View>
-          <Text style={styles.tierEarned}>₹0</Text>
-        </View>
+            {/* Incentive Breakdown Summary */}
+            <View style={styles.breakdownCard}>
+              <Text style={styles.sectionHeading}>Incentive Structure Overview</Text>
 
-        <View style={styles.tierItem}>
-          <View style={[styles.tierIconBox, { backgroundColor: '#FAF5FF' }]}>
-            <Trophy size={16} color="#8B5CF6" />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.tierTitle}>Annual Milestone Bonus</Text>
-            <Text style={styles.tierSub}>₹1,00,000 lump sum for 15 closed clients in calendar year</Text>
-          </View>
-          <Text style={styles.tierEarned}>₹0</Text>
-        </View>
-      </View>
+              <View style={styles.tierItem}>
+                <View style={[styles.tierIconBox, { backgroundColor: '#EFF6FF' }]}>
+                  <Banknote size={16} color="#4F75FF" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.tierTitle}>Productized Growth Diagnostic</Text>
+                  <Text style={styles.tierSub}>₹1,000 fixed payout upon client payment verification</Text>
+                </View>
+                <Text style={styles.tierEarned}>₹1,000</Text>
+              </View>
 
-      {/* Annual Bonus Progress Card */}
-      <View style={styles.bonusCard}>
-        <View style={styles.bonusHeader}>
-          <Trophy size={18} color="#D97706" />
-          <Text style={styles.bonusTitle}>2026 Annual Bonus Progress</Text>
-        </View>
-        <Text style={styles.bonusDescription}>
-          Close 15 qualified client engagements before Dec 31, 2026 to unlock your ₹1,00,000 achievement bonus.
-        </Text>
+              <View style={styles.tierItem}>
+                <View style={[styles.tierIconBox, { backgroundColor: '#FDF4FF' }]}>
+                  <TrendingUp size={16} color="#EC4899" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.tierTitle}>Core Custom Software / Retainer</Text>
+                  <Text style={styles.tierSub}>10% contract value per service client</Text>
+                </View>
+                <Text style={styles.tierEarned}>10%</Text>
+              </View>
 
-        <View style={styles.bonusProgressRow}>
-          <Text style={styles.bonusProgressCount}>0 of 15</Text>
-          <Text style={styles.bonusProgressLabel}>Closed Clients (0%)</Text>
-        </View>
-        <View style={styles.bonusProgressBar}>
-          <View style={[styles.bonusProgressFill, { width: '0%' }]} />
-        </View>
-      </View>
-    </ScrollView>
+              <View style={styles.tierItem}>
+                <View style={[styles.tierIconBox, { backgroundColor: '#FAF5FF' }]}>
+                  <Trophy size={16} color="#8B5CF6" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.tierTitle}>Annual Milestone Bonus</Text>
+                  <Text style={styles.tierSub}>₹1,00,000 lump sum for 15 closed clients in calendar year</Text>
+                </View>
+                <Text style={styles.tierEarned}>₹1,00,000</Text>
+              </View>
+            </View>
+
+            {/* Annual Bonus Progress Card */}
+            <View style={styles.bonusCard}>
+              <View style={styles.bonusHeader}>
+                <Trophy size={18} color="#D97706" />
+                <Text style={styles.bonusTitle}>2026 Annual Bonus Progress</Text>
+              </View>
+              <Text style={styles.bonusDescription}>
+                Close 15 qualified client engagements before Dec 31, 2026 to unlock your ₹1,00,000 achievement bonus.
+              </Text>
+
+              <View style={styles.bonusProgressRow}>
+                <Text style={styles.bonusProgressCount}>
+                  {summary.bonusActual} of {summary.bonusTarget}
+                </Text>
+                <Text style={styles.bonusProgressLabel}>Closed Clients ({summary.bonusPct}%)</Text>
+              </View>
+              <View style={styles.bonusProgressBar}>
+                <View style={[styles.bonusProgressFill, { width: `${Math.max(2, summary.bonusPct)}%` }]} />
+              </View>
+            </View>
+          </>
+        )}
+      </ScrollView>
     </View>
   );
 }

@@ -25,6 +25,7 @@ import {
 import { apiClient } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 import { AppHeader } from '../../components/AppHeader';
+import { LeadsSkeleton } from '../../components/Skeleton';
 
 function formatLeadDate(dateVal?: string | Date | null): string {
   if (!dateVal) return 'Recently';
@@ -239,10 +240,7 @@ export default function LeadsTabScreen() {
         }
       >
         {loading && !refreshing ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#4F75FF" />
-            <Text style={styles.loadingText}>Loading registered prospects...</Text>
-          </View>
+          <LeadsSkeleton />
         ) : error ? (
           <View style={styles.errorContainer}>
             <AlertCircle size={32} color="#EF4444" />

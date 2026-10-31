@@ -28,6 +28,7 @@ import { apiClient } from '../../services/api';
 import { useDraftStore } from '../../store/draftStore';
 import { useAuthStore } from '../../store/authStore';
 import { AppHeader } from '../../components/AppHeader';
+import { HomeSkeleton } from '../../components/Skeleton';
 
 export default function HomeDashboardScreen() {
   const router = useRouter();
@@ -37,6 +38,7 @@ export default function HomeDashboardScreen() {
   const unsyncedCount = savedDrafts.length;
   const [leadList, setLeadList] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadData = useCallback(async () => {
@@ -73,6 +75,8 @@ export default function HomeDashboardScreen() {
       }
     } catch (err) {
       console.log('Failed to fetch dashboard leads:', err);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -192,8 +196,12 @@ export default function HomeDashboardScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4F75FF']} />}
       >
-        {/* Executive Welcome & Partner Status Card */}
-        <View style={styles.heroCard}>
+        {loading && leadList.length === 0 ? (
+          <HomeSkeleton />
+        ) : (
+          <>
+            {/* Executive Welcome & Partner Status Card */}
+            <View style={styles.heroCard}>
           <View style={styles.heroTopRow}>
             <View style={styles.partnerTierPill}>
               <View style={styles.tierDot} />
@@ -420,6 +428,8 @@ export default function HomeDashboardScreen() {
             ))
           )}
         </View>
+        </>
+        )}
       </ScrollView>
     </View>
   );

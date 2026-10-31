@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
-  StyleSheet
+  StyleSheet,
+  RefreshControl
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import {
   Calendar,
   Clock,
@@ -18,11 +19,58 @@ import {
 } from 'lucide-react-native';
 import { LumoraButton } from '../../components/LumoraButton';
 import { AppHeader } from '../../components/AppHeader';
+import { MeetingsSkeleton } from '../../components/Skeleton';
+import { apiClient } from '../../services/api';
 
 export default function MeetingsTabScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'UPCOMING' | 'PAST'>('UPCOMING');
   const [meetings, setMeetings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadMeetings = useCallback(async () => {
+    try {
+      const res = await apiClient.listMeetings();
+      if (res.data) {
+        const list = Array.isArray(res.data) ? res.data : (res.data as any).data || [];
+        const now = new Date();
+        const mapped = list.map((m: any) => {
+          const sched = m.scheduledAt ? new Date(m.scheduledAt) : new Date();
+          const isUpcoming = sched.getTime() >= now.getTime() && m.status !== 'COMPLETED' && m.status !== 'CANCELLED';
+          return {
+            id: m.id,
+            title: m.title || 'Discovery Presentation',
+            companyName: m.companyName || m.lead?.companyName || 'Enterprise Prospect',
+            status: m.status || (isUpcoming ? 'SCHEDULED' : 'COMPLETED'),
+            isUpcoming,
+            scheduledAt: sched.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }),
+            duration: m.durationMinutes ? `${m.durationMinutes} mins` : '30 mins',
+            mode: m.meetingMode || 'ONLINE',
+            linkOrLocation: m.meetingLink || m.location || 'Google Meet / Zoom',
+            outcome: m.outcomeSummary || null
+          };
+        });
+        setMeetings(mapped);
+      }
+    } catch (err) {
+      console.log('Failed to fetch meetings:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadMeetings();
+    }, [loadMeetings])
+  );
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadMeetings();
+  };
 
   const filteredMeetings = meetings.filter((m) =>
     activeTab === 'UPCOMING' ? m.isUpcoming : !m.isUpcoming
@@ -58,8 +106,13 @@ export default function MeetingsTabScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        {filteredMeetings.length === 0 ? (
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4F75FF']} />}
+      >
+        {loading && !refreshing ? (
+          <MeetingsSkeleton />
+        ) : filteredMeetings.length === 0 ? (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconCircle}>
               <Calendar size={36} color="#4F75FF" />
