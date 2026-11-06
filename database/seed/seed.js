@@ -187,6 +187,49 @@ async function main() {
   }
   console.log('✅ 4 Essential Staff Accounts initialized');
 
+  // 3b. Primary Verified Partner Account (Sagar)
+  const sagarPasswordHash = await bcrypt.hash('Sagarya@007', salt);
+  const sagarUser = await prisma.user.upsert({
+    where: { email: 'aryaarya49061@gmail.com' },
+    update: {
+      passwordHash: sagarPasswordHash,
+      status: 'ACTIVE'
+    },
+    create: {
+      fullName: 'Sagar',
+      email: 'aryaarya49061@gmail.com',
+      phone: '9353548082',
+      passwordHash: sagarPasswordHash,
+      status: 'ACTIVE',
+      emailVerifiedAt: new Date(),
+      phoneVerifiedAt: new Date()
+    }
+  });
+
+  await prisma.userRole.upsert({
+    where: { userId_roleId: { userId: sagarUser.id, roleId: roleMap['PARTNER'] } },
+    update: {},
+    create: {
+      userId: sagarUser.id,
+      roleId: roleMap['PARTNER']
+    }
+  });
+
+  await prisma.partnerProfile.upsert({
+    where: { userId: sagarUser.id },
+    update: { onboardingStatus: 'VERIFIED' },
+    create: {
+      userId: sagarUser.id,
+      title: 'Senior Business Development Partner',
+      yearsExperience: 3,
+      industries: ['SaaS & Cloud', 'Enterprise Technology'],
+      languages: ['English', 'Hindi'],
+      timezone: 'Asia/Kolkata',
+      onboardingStatus: 'VERIFIED'
+    }
+  });
+  console.log('✅ Primary Partner Account initialized (aryaarya49061@gmail.com)');
+
   // 4. Master Agreement
   const masterAgreement = await prisma.agreement.upsert({
     where: { version: '2026.1' },

@@ -12,8 +12,7 @@ landing-page
 node_modules
 **/.expo
 .expo
-apps/api/dist
-apps/admin/dist
+dist
 build
 web-build
 **/.next
@@ -22,6 +21,7 @@ web-build
 # Git & System
 .git
 .github
+
 *.log
 npm-debug.log*
 .env*

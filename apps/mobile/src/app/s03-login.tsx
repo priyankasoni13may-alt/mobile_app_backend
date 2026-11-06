@@ -36,7 +36,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     const finalIdentifier = identifier.trim();
-    const finalPassword = password;
+    const finalPassword = password.trim();
 
     if (!finalIdentifier || !finalPassword) {
       setErrorMsg('Please enter both email/phone and password.');
